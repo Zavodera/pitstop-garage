@@ -7,1308 +7,950 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PitStop">
 <title>PitStop Garage</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --orange:#F97316; --orange-l:#FB923C; --orange-pale:rgba(249,115,22,.13); --orange-d:#EA6700;
-  --yellow:#FBBF24;
-  --t1:#F5F0E8; --t2:#A8A090; --t3:#5C5548;
-  --bg:#0C0B09; --bg-s:#111009; --bg-card:#181510; --bg-in:#1E1A14;
-  --bd:rgba(249,115,22,.18); --bd-m:rgba(255,255,255,.07); --bd-s:rgba(255,255,255,.04);
-  --ok:#22C55E; --ok-bg:rgba(34,197,94,.12);
-  --warn:#FBBF24; --warn-bg:rgba(251,191,36,.12);
-  --err:#EF4444; --err-bg:rgba(239,68,68,.12);
-  --info:#60A5FA; --info-bg:rgba(96,165,250,.12);
-  --purple:#A78BFA; --purple-bg:rgba(167,139,250,.12);
-  --r-sm:8px; --r-md:14px; --r-lg:18px; --r-xl:24px; --r-full:999px;
-  --sh-sm:0 2px 10px rgba(0,0,0,.6); --sh-md:0 8px 28px rgba(0,0,0,.7);
-  --sh-o:0 4px 20px rgba(249,115,22,.25);
-  --tab-h:68px; --hdr-h:56px; --sb-w:200px;
-  --font:'Barlow',sans-serif; --font-c:'Barlow Condensed',sans-serif; --mono:'DM Mono',monospace;
+:root{
+  --o:#F97316;--od:#EA6700;--ol:rgba(249,115,22,.14);
+  --t1:#F5F0E8;--t2:#A8A090;--t3:#5C5548;
+  --bg:#0C0B09;--bgs:#111009;--bgc:#181510;--bgi:#1E1A14;
+  --bd:rgba(249,115,22,.18);--bdm:rgba(255,255,255,.07);--bds:rgba(255,255,255,.04);
+  --ok:#22C55E;--okb:rgba(34,197,94,.12);
+  --warn:#FBBF24;--warnb:rgba(251,191,36,.12);
+  --err:#EF4444;--errb:rgba(239,68,68,.12);
+  --info:#60A5FA;--infob:rgba(96,165,250,.12);
+  --pur:#A78BFA;--purb:rgba(167,139,250,.12);
+  --rsm:8px;--rmd:14px;--rlg:18px;--rxl:24px;--rf:999px;
+  --sho:0 4px 20px rgba(249,115,22,.25);--shm:0 8px 28px rgba(0,0,0,.7);
+  --th:68px;--hh:56px;--sbw:196px;
+  --f:'Barlow',sans-serif;--fc:'Barlow Condensed',sans-serif;--fm:'DM Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--font);font-size:15px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--f);font-size:15px;-webkit-font-smoothing:antialiased}
 
-/* ── LOADING ── */
+/* LOADING */
 #ld{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s}
 #ld.out{opacity:0;pointer-events:none}
-.ld-ico{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,var(--orange-d),var(--orange));display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;box-shadow:var(--sh-o);animation:ldp 2s ease-in-out infinite}
-.ld-ico svg{width:44px;height:44px;fill:#fff}
-.ld-name{font-family:var(--font-c);font-size:30px;font-weight:900;letter-spacing:2px;text-transform:uppercase}
-.ld-name span{color:var(--orange)}
-.ld-sub{font-size:11px;color:var(--t3);letter-spacing:4px;text-transform:uppercase;margin-top:3px;margin-bottom:2rem}
-.ld-bar{width:56px;height:3px;background:var(--bd-m);border-radius:3px;overflow:hidden}
-.ld-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange-d),var(--yellow));border-radius:3px;animation:lb 1.6s ease-in-out infinite}
+.ldi{width:76px;height:76px;border-radius:20px;background:linear-gradient(135deg,var(--od),var(--o));display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;box-shadow:var(--sho);animation:lp 2s ease-in-out infinite}
+.ldi svg{width:40px;height:40px;fill:#fff}
+.ldn{font-family:var(--fc);font-size:28px;font-weight:900;letter-spacing:2px;text-transform:uppercase}
+.ldn span{color:var(--o)}
+.lds{font-size:11px;color:var(--t3);letter-spacing:4px;text-transform:uppercase;margin-top:3px;margin-bottom:1.75rem}
+.ldb{width:52px;height:3px;background:var(--bdm);border-radius:3px;overflow:hidden}
+.ldb i{display:block;height:100%;background:linear-gradient(90deg,var(--od),var(--warn));border-radius:3px;animation:lb 1.6s ease-in-out infinite}
 @keyframes lb{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
-@keyframes ldp{0%,100%{box-shadow:var(--sh-o)}50%{box-shadow:0 4px 32px rgba(249,115,22,.5)}}
+@keyframes lp{0%,100%{box-shadow:var(--sho)}50%{box-shadow:0 4px 32px rgba(249,115,22,.5)}}
 
-/* ── AUTH ── */
-#auth{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);overflow-y:auto;padding:1.5rem;position:relative}
-#auth::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(249,115,22,.07) 0%,transparent 70%);pointer-events:none}
-.auth-card{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-xl);width:100%;max-width:380px;box-shadow:var(--sh-md);overflow:hidden;position:relative;z-index:1}
-.auth-hero{background:linear-gradient(160deg,rgba(249,115,22,.1) 0%,transparent 100%);padding:1.6rem 1.5rem 1.2rem;text-align:center;border-bottom:1px solid var(--bd-m)}
-.auth-ico{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--orange-d),var(--orange));display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;box-shadow:var(--sh-o)}
-.auth-ico svg{width:28px;height:28px;fill:#fff}
-.auth-hero h1{font-family:var(--font-c);font-size:22px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
-.auth-hero h1 span{color:var(--orange)}
-.auth-hero p{font-size:12px;color:var(--t3);margin-top:.3rem}
-.auth-body{padding:1.2rem 1.25rem 1.5rem}
-.a-tabs{display:flex;background:var(--bg-s);border-radius:var(--r-full);padding:3px;margin-bottom:1.2rem;border:1px solid var(--bd-m)}
-.a-tab{flex:1;padding:.42rem;text-align:center;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--t2);font-family:var(--font-c);letter-spacing:.8px;text-transform:uppercase}
-.a-tab.on{background:var(--orange);color:#fff;box-shadow:var(--sh-sm)}
-.a-form{display:none}.a-form.on{display:block}
-.fld{margin-bottom:.85rem}
-.fld label{font-size:10px;font-weight:700;color:var(--t2);margin-bottom:.35rem;display:block;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-c)}
-.fld input,.fld select,.fld textarea{width:100%;background:var(--bg-in);border:1.5px solid var(--bd-m);border-radius:var(--r-sm);padding:.75rem .9rem;color:var(--t1);font-family:var(--font);font-size:14px;outline:none;transition:border .18s}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.1);background:var(--bg-card)}
+/* AUTH */
+#auth{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);overflow-y:auto;padding:1.5rem}
+.ac{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rxl);width:100%;max-width:380px;box-shadow:var(--shm);overflow:hidden;position:relative;z-index:1}
+.ah{background:linear-gradient(160deg,rgba(249,115,22,.1) 0%,transparent 100%);padding:1.5rem 1.5rem 1.2rem;text-align:center;border-bottom:1px solid var(--bdm)}
+.ahi{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--od),var(--o));display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;box-shadow:var(--sho)}
+.ahi svg{width:26px;height:26px;fill:#fff}
+.ah h1{font-family:var(--fc);font-size:21px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--t1)}
+.ah h1 span{color:var(--o)}
+.ah p{font-size:12px;color:var(--t3);margin-top:.3rem}
+.ab{padding:1.1rem 1.2rem 1.4rem}
+.atabs{display:flex;background:var(--bgs);border-radius:var(--rf);padding:3px;margin-bottom:1.1rem;border:1px solid var(--bdm)}
+.atab{flex:1;padding:.42rem;text-align:center;border-radius:var(--rf);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--t2);font-family:var(--fc);letter-spacing:.8px;text-transform:uppercase}
+.atab.on{background:var(--o);color:#fff}
+.aform{display:none}.aform.on{display:block}
+.fld{margin-bottom:.8rem}
+.fld label{font-size:10px;font-weight:700;color:var(--t2);margin-bottom:.35rem;display:block;letter-spacing:.08em;text-transform:uppercase;font-family:var(--fc)}
+.fld input,.fld textarea{width:100%;background:var(--bgi);border:1.5px solid var(--bdm);border-radius:var(--rsm);padding:.72rem .9rem;color:var(--t1);font-family:var(--f);font-size:14px;outline:none;transition:border .18s}
+.fld input:focus,.fld textarea:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(249,115,22,.1);background:var(--bgc)}
 .fld input::placeholder,.fld textarea::placeholder{color:var(--t3)}
-.fld select option{background:var(--bg-card)}
-.fld textarea{resize:none;min-height:80px}
-.btn-main{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--orange-d),var(--orange));border:none;border-radius:var(--r-sm);color:#fff;font-family:var(--font-c);font-size:15px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:var(--sh-o)}
-.btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(249,115,22,.4)}
-.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.a-msg{font-size:13px;text-align:center;margin-top:.6rem;min-height:18px;font-weight:600}
-.a-msg.err{color:var(--err)}.a-msg.ok{color:var(--ok)}
-.auth-footer{text-align:center;margin-top:1.25rem;font-size:12px;color:var(--t3);position:relative;z-index:1}
+.fld textarea{resize:none;min-height:78px}
+.btnm{width:100%;padding:.82rem;background:linear-gradient(135deg,var(--od),var(--o));border:none;border-radius:var(--rsm);color:#fff;font-family:var(--fc);font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:var(--sho)}
+.btnm:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(249,115,22,.4)}
+.btnm:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.amsg{font-size:13px;text-align:center;margin-top:.55rem;min-height:16px;font-weight:600}
+.amsg.err{color:var(--err)}.amsg.ok{color:var(--ok)}
+.afoot{text-align:center;margin-top:1.1rem;font-size:12px;color:var(--t3)}
 
-/* ── APP SHELL ── */
-.app{display:none;flex-direction:column;height:100vh;background:var(--bg-s)}
+/* APP */
+.app{display:none;flex-direction:column;height:100vh;background:var(--bgs)}
 
 /* HEADER */
-.hdr{height:var(--hdr-h);background:var(--bg-card);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;flex-shrink:0;gap:12px}
-.hdr-l{display:flex;align-items:center;gap:10px;overflow:hidden}
-.hdr-logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--orange-d),var(--orange));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sh-o)}
+.hdr{height:var(--hh);background:var(--bgc);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 1.1rem;flex-shrink:0;gap:10px}
+.hdr-l{display:flex;align-items:center;gap:9px;overflow:hidden;min-width:0}
+.hdr-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--od),var(--o));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sho)}
 .hdr-logo svg{width:20px;height:20px;fill:#fff}
-.hdr-brand{font-family:var(--font-c);font-size:19px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--t1);flex-shrink:0}
-.hdr-brand span{color:var(--orange)}
-.hdr-sep{width:1px;height:20px;background:var(--bd-m);flex-shrink:0}
+.hdr-brand{font-family:var(--fc);font-size:18px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--t1);flex-shrink:0}
+.hdr-brand span{color:var(--o)}
+.hdr-sep{width:1px;height:18px;background:var(--bdm);flex-shrink:0}
 .hdr-user{display:flex;flex-direction:column;justify-content:center;overflow:hidden;min-width:0}
-.hdr-user-name{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdr-user-role{font-family:var(--font-c);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-top:1px}
-.hdr-r{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.btn-ico{width:34px;height:34px;border-radius:var(--r-sm);background:var(--bg-in);border:1px solid var(--bd-m);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s}
-.btn-ico:hover{background:var(--bg-card);border-color:var(--bd)}
-.btn-ico svg{width:17px;height:17px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hdr-user-name{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-user-role{font-family:var(--fc);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--o);margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.btico{width:34px;height:34px;border-radius:var(--rsm);background:var(--bgi);border:1px solid var(--bdm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s}
+.btico:hover{background:var(--bgc);border-color:var(--bd)}
+.btico svg{width:17px;height:17px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:480px){.hdr-sep,.hdr-user{display:none}}
 
 /* BODY */
 .app-body{display:flex;flex:1;overflow:hidden}
 
 /* SIDEBAR */
-.sidebar{width:var(--sb-w);flex-shrink:0;background:var(--bg-card);border-right:1px solid var(--bd-m);display:none;flex-direction:column;padding:.9rem .65rem;overflow-y:auto}
-@media(min-width:768px){.sidebar{display:flex}}
+.sb{width:var(--sbw);flex-shrink:0;background:var(--bgc);border-right:1px solid var(--bdm);display:none;flex-direction:column;padding:.85rem .6rem;overflow-y:auto}
+@media(min-width:768px){.sb{display:flex}}
 .sb-nav{display:flex;flex-direction:column;gap:.15rem;flex:1}
-.sb-item{display:flex;align-items:center;gap:9px;padding:.62rem .8rem;border-radius:var(--r-md);cursor:pointer;transition:all .18s;color:var(--t2);font-family:var(--font-c);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.sb-item{display:flex;align-items:center;gap:9px;padding:.62rem .82rem;border-radius:var(--rmd);cursor:pointer;transition:all .18s;color:var(--t2);font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap;user-select:none}
 .sb-item svg{width:17px;height:17px;fill:currentColor;flex-shrink:0}
-.sb-item:hover{background:var(--bg-in);color:var(--t1)}
-.sb-item.on{background:var(--orange-pale);color:var(--orange);border-color:rgba(249,115,22,.2)}
-.sb-div{height:1px;background:var(--bd-s);margin:.6rem 0}
-.sb-logout{display:flex;align-items:center;gap:9px;padding:.62rem .8rem;border-radius:var(--r-md);cursor:pointer;transition:all .18s;color:var(--t3);font-family:var(--font-c);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
-.sb-logout svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.sb-logout:hover{color:var(--err)}
+.sb-item:hover{background:var(--bgi);color:var(--t1)}
+.sb-item.on{background:var(--ol);color:var(--o);border-color:rgba(249,115,22,.2)}
+.sb-div{height:1px;background:var(--bds);margin:.6rem 0}
+.sb-out{display:flex;align-items:center;gap:9px;padding:.62rem .82rem;border-radius:var(--rmd);cursor:pointer;transition:all .18s;color:var(--t3);font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;user-select:none}
+.sb-out svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sb-out:hover{color:var(--err)}
 
 /* PAGES */
-.pages{flex:1;overflow:hidden;position:relative;background:var(--bg-s)}
-.page{position:absolute;inset:0;overflow-y:auto;display:none;padding-bottom:1.5rem}
+.pages{flex:1;overflow:hidden;position:relative;background:var(--bgs)}
+.page{position:absolute;inset:0;overflow-y:auto;display:none}
 .page.on{display:block}
-.page-inner{max-width:740px;margin:0 auto;padding:1.75rem 1.75rem 0}
-@media(max-width:767px){.page{padding-bottom:calc(var(--tab-h) + .5rem)}.page-inner{padding:1.25rem 1.1rem 0}}
+.pi{max-width:740px;margin:0 auto;padding:1.6rem 1.6rem 2rem}
+@media(max-width:767px){.page{padding-bottom:calc(var(--th) + .5rem)}.pi{padding:1.1rem 1rem 1.5rem}}
 
-/* BOTTOM TABS (mobile) */
-.tabs{height:var(--tab-h);background:var(--bg-card);border-top:1px solid var(--bd-m);display:flex;align-items:stretch;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+/* TABS mobile */
+.tabs{height:var(--th);background:var(--bgc);border-top:1px solid var(--bdm);display:flex;align-items:stretch;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
 @media(min-width:768px){.tabs{display:none}}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .18s;color:var(--t3);font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font-c);position:relative}
-.tab.on{color:var(--orange)}
-.tab.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--t3);font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--fc);position:relative;user-select:none}
+.tab.on{color:var(--o)}
+.tab.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--o);border-radius:0 0 4px 4px}
 .tab svg{width:20px;height:20px}
 
-/* SHARED */
-.pg-title{font-family:var(--font-c);font-size:24px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:.15rem;color:var(--t1)}
-.pg-sub{font-size:13px;color:var(--t2);margin-bottom:1.25rem;font-weight:500}
-.card{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-lg);padding:1.1rem 1.2rem;margin-bottom:.85rem;box-shadow:var(--sh-sm)}
-.card-lbl{font-family:var(--font-c);font-size:12px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem}
-.sg-lbl{font-family:var(--font-c);font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:1.25rem 0 .5rem}
-.sg-lbl:first-child{margin-top:0}
-.divider{height:1px;background:var(--bd-s);margin:.75rem 0}
-.notice{display:flex;gap:.7rem;padding:.8rem .9rem;border-radius:var(--r-md);background:var(--orange-pale);border:1px solid rgba(249,115,22,.3);margin-bottom:.85rem}
-.notice svg{width:16px;height:16px;fill:var(--orange);flex-shrink:0;margin-top:1px}
+/* COMPONENTS */
+.pgtitle{font-family:var(--fc);font-size:23px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem;color:var(--t1)}
+.pgsub{font-size:13px;color:var(--t2);margin-bottom:1.1rem;font-weight:500}
+.card{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rlg);padding:1rem 1.1rem;margin-bottom:.75rem}
+.clbl{font-family:var(--fc);font-size:11px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem}
+.notice{display:flex;gap:.65rem;padding:.75rem .9rem;border-radius:var(--rmd);background:var(--ol);border:1px solid rgba(249,115,22,.3);margin-bottom:.75rem}
+.notice svg{width:15px;height:15px;fill:var(--o);flex-shrink:0;margin-top:1px}
 .notice p{font-size:12px;color:var(--t2);line-height:1.5}
-.notice p strong{color:var(--orange)}
+.notice p strong{color:var(--o)}
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem}
-.stat-card{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-md);padding:.8rem .6rem;text-align:center}
-.stat-val{font-family:var(--font-c);font-size:26px;font-weight:900;color:var(--t1);line-height:1}
-.stat-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-family:var(--font-c)}
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-bottom:.85rem}
+.scard{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rmd);padding:.75rem .6rem;text-align:center}
+.sval{font-family:var(--fc);font-size:25px;font-weight:900;color:var(--t1);line-height:1}
+.slbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-family:var(--fc)}
 
 /* NEXT CARD */
-.next-card{background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(251,191,36,.07));border:1.5px solid rgba(249,115,22,.35);border-radius:var(--r-lg);padding:1rem 1.1rem;margin-bottom:.85rem;position:relative;overflow:hidden;cursor:pointer}
-.next-tag{font-family:var(--font-c);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:.4rem}
-.next-time{font-family:var(--font-c);font-size:30px;font-weight:900;letter-spacing:2px;color:var(--t1);line-height:1}
-.next-details{font-size:12px;color:var(--t2);margin-top:.3rem}
+.ncard{background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(251,191,36,.07));border:1.5px solid rgba(249,115,22,.35);border-radius:var(--rlg);padding:.95rem 1.1rem;margin-bottom:.75rem;cursor:pointer}
+.ntag{font-family:var(--fc);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--o);margin-bottom:.35rem}
+.ntime{font-family:var(--fc);font-size:28px;font-weight:900;letter-spacing:2px;color:var(--t1);line-height:1}
+.ndet{font-size:12px;color:var(--t2);margin-top:.3rem}
 
-/* SERVICE SELECT */
-.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.1rem}
-.svc-card{background:var(--bg-card);border:2px solid var(--bd-m);border-radius:var(--r-md);padding:1rem .85rem;text-align:center;cursor:pointer;transition:all .2s}
-.svc-card:hover{border-color:var(--orange);background:var(--orange-pale)}
-.svc-card.on{border-color:var(--orange);background:var(--orange-pale)}
-.svc-card.on .svc-ico{background:var(--orange)}
-.svc-card.on .svc-ico svg{fill:#fff}
-.svc-ico{width:42px;height:42px;border-radius:11px;background:var(--bg-in);display:flex;align-items:center;justify-content:center;margin:0 auto .7rem;transition:all .2s}
-.svc-ico svg{width:22px;height:22px;fill:var(--t2);transition:all .2s}
-.svc-name{font-family:var(--font-c);font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--t1)}
-.svc-desc{font-size:11px;color:var(--t2);margin-top:2px}
+/* SVC CARDS */
+.svgrid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem}
+.svcard{background:var(--bgc);border:2px solid var(--bdm);border-radius:var(--rmd);padding:.95rem .85rem;text-align:center;cursor:pointer;transition:all .2s}
+.svcard:hover,.svcard.on{border-color:var(--o);background:var(--ol)}
+.svcard.on .svico{background:var(--o)}
+.svcard.on .svico svg{fill:#fff}
+.svico{width:40px;height:40px;border-radius:11px;background:var(--bgi);display:flex;align-items:center;justify-content:center;margin:0 auto .65rem;transition:all .2s}
+.svico svg{width:22px;height:22px;fill:var(--t2);transition:fill .2s}
+.svname{font-family:var(--fc);font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--t1)}
+.svdesc{font-size:11px;color:var(--t2);margin-top:2px}
 
 /* SLOTS */
-.slot-grid{display:flex;flex-direction:column;gap:.5rem}
-.slot{background:var(--bg-card);border:1.5px solid var(--bd-m);border-radius:var(--r-md);padding:.85rem 1rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;transition:all .2s}
-.slot:hover:not(.slot-full):not(.slot-sel){border-color:var(--orange);background:rgba(249,115,22,.04)}
-.slot.slot-full{opacity:.5;cursor:not-allowed}
-.slot.slot-sel{border-color:var(--orange);background:var(--orange-pale);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
-.slot-time{font-family:var(--font-c);font-size:20px;font-weight:800;color:var(--t1);min-width:58px;letter-spacing:1px}
-.slot-info{flex:1}
-.slot-lbl{font-size:11px;color:var(--t2);font-weight:600}
-.vdots{display:flex;gap:5px;margin-top:3px}
+.slotgrid{display:flex;flex-direction:column;gap:.45rem}
+.slot{background:var(--bgc);border:1.5px solid var(--bdm);border-radius:var(--rmd);padding:.8rem .95rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .2s}
+.slot:hover:not(.sfull):not(.ssel){border-color:var(--o);background:rgba(249,115,22,.04)}
+.slot.sfull{opacity:.5;cursor:not-allowed}
+.slot.ssel{border-color:var(--o);background:var(--ol);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.slt{font-family:var(--fc);font-size:20px;font-weight:800;color:var(--t1);min-width:56px;letter-spacing:1px}
+.sli{flex:1}
+.sll{font-size:11px;color:var(--t2);font-weight:600}
+.vdots{display:flex;gap:4px;margin-top:3px}
 .vdot{width:9px;height:9px;border-radius:50%}
-.vdot.used{background:var(--orange)}.vdot.free{background:var(--bd-m)}
-.slot-badge{font-family:var(--font-c);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:var(--r-full)}
-.slot-badge.avail{background:var(--ok-bg);color:var(--ok)}
-.slot-badge.one{background:var(--warn-bg);color:var(--warn)}
-.slot-badge.full{background:var(--err-bg);color:var(--err)}
+.vdot.u{background:var(--o)}.vdot.f{background:var(--bdm)}
+.sbadge{font-family:var(--fc);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:var(--rf)}
+.sbadge.av{background:var(--okb);color:var(--ok)}
+.sbadge.one{background:var(--warnb);color:var(--warn)}
+.sbadge.full{background:var(--errb);color:var(--err)}
 
 /* APPT CARDS */
-.appt-card{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-lg);padding:1rem 1.1rem;margin-bottom:.65rem;box-shadow:var(--sh-sm);position:relative;overflow:hidden}
-.appt-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
-.appt-card.pendente::before{background:var(--warn)}
-.appt-card.agendado::before{background:var(--info)}
-.appt-card.concluido::before{background:var(--ok)}
-.appt-card.cancelado::before{background:#4B5563}
-.appt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
-.appt-hora{font-family:var(--font-c);font-size:19px;font-weight:900;color:var(--t1);letter-spacing:1px}
-.status-pill{font-family:var(--font-c);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:var(--r-full)}
-.status-pill.pendente{background:var(--warn-bg);color:var(--warn)}
-.status-pill.agendado{background:var(--info-bg);color:var(--info)}
-.status-pill.concluido{background:var(--ok-bg);color:var(--ok)}
-.status-pill.cancelado{background:rgba(75,85,99,.2);color:#9CA3AF}
-.appt-rows{display:flex;flex-direction:column;gap:.3rem}
-.appt-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2)}
-.appt-row svg{width:13px;height:13px;fill:var(--t3);flex-shrink:0}
-.appt-row strong{color:var(--t1);font-weight:600}
-.appt-acts{display:flex;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--bd-s)}
-.btn-sm{flex:1;padding:.45rem .65rem;border-radius:var(--r-sm);font-family:var(--font-c);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:none;cursor:pointer;transition:all .18s}
-.btn-ok{background:var(--ok-bg);color:var(--ok)}.btn-ok:hover{background:rgba(34,197,94,.22)}
-.btn-info{background:var(--info-bg);color:var(--info)}.btn-info:hover{background:rgba(96,165,250,.22)}
-.btn-cancel{background:var(--err-bg);color:var(--err)}.btn-cancel:hover{background:rgba(239,68,68,.22)}
-.btn-outline{background:transparent;color:var(--t2);border:1px solid var(--bd-m)}.btn-outline:hover{color:var(--t1);border-color:var(--bd)}
+.acard{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rlg);padding:.95rem 1.05rem;margin-bottom:.6rem;position:relative;overflow:hidden}
+.acard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.acard.pendente::before{background:var(--warn)}
+.acard.agendado::before{background:var(--info)}
+.acard.concluido::before{background:var(--ok)}
+.acard.cancelado::before{background:#4B5563}
+.achdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.55rem}
+.achora{font-family:var(--fc);font-size:18px;font-weight:900;color:var(--t1);letter-spacing:1px}
+.spill{font-family:var(--fc);font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 9px;border-radius:var(--rf)}
+.spill.pendente{background:var(--warnb);color:var(--warn)}
+.spill.agendado{background:var(--infob);color:var(--info)}
+.spill.concluido{background:var(--okb);color:var(--ok)}
+.spill.cancelado{background:rgba(75,85,99,.2);color:#9CA3AF}
+.arows{display:flex;flex-direction:column;gap:.28rem}
+.arow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
+.arow strong{color:var(--t1);font-weight:600}
+.aacts{display:flex;gap:.45rem;margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--bds)}
+.btsm{flex:1;padding:.42rem .6rem;border-radius:var(--rsm);font-family:var(--fc);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:none;cursor:pointer;transition:all .18s}
+.btok{background:var(--okb);color:var(--ok)}.btok:hover{background:rgba(34,197,94,.22)}
+.btinfo{background:var(--infob);color:var(--info)}.btinfo:hover{background:rgba(96,165,250,.22)}
+.btcancel{background:var(--errb);color:var(--err)}.btcancel:hover{background:rgba(239,68,68,.22)}
 
 /* DAY SECTIONS */
-.day-sec{margin-bottom:1.2rem}
-.day-hdr{display:flex;align-items:center;gap:9px;margin-bottom:.6rem;padding:.45rem .7rem;background:var(--bg-card);border-radius:var(--r-sm);border-left:3px solid var(--orange)}
-.day-hora{font-family:var(--font-c);font-size:17px;font-weight:900;color:var(--orange);letter-spacing:1px;min-width:56px}
-.day-info{font-family:var(--font-c);font-size:12px;font-weight:700;color:var(--t2)}
-.day-info span{color:var(--t1)}
-.count-pill{margin-left:auto;font-family:var(--font-c);font-size:11px;font-weight:800;padding:2px 7px;border-radius:var(--r-full);text-transform:uppercase;letter-spacing:.5px}
-.count-pill.full{background:var(--err-bg);color:var(--err)}
-.count-pill.partial{background:var(--warn-bg);color:var(--warn)}
-.count-pill.empty{background:var(--ok-bg);color:var(--ok)}
+.dsec{margin-bottom:1.1rem}
+.dhdr{display:flex;align-items:center;gap:8px;margin-bottom:.55rem;padding:.42rem .65rem;background:var(--bgc);border-radius:var(--rsm);border-left:3px solid var(--o)}
+.dhora{font-family:var(--fc);font-size:16px;font-weight:900;color:var(--o);letter-spacing:1px;min-width:52px}
+.dinfo{font-family:var(--fc);font-size:12px;font-weight:700;color:var(--t2)}
+.dinfo span{color:var(--t1)}
+.cpill{margin-left:auto;font-family:var(--fc);font-size:11px;font-weight:800;padding:2px 7px;border-radius:var(--rf);text-transform:uppercase;letter-spacing:.5px}
+.cpill.full{background:var(--errb);color:var(--err)}
+.cpill.partial{background:var(--warnb);color:var(--warn)}
+.cpill.ok{background:var(--okb);color:var(--ok)}
 
-/* FILTER ROW */
-.filter-row{display:flex;gap:.45rem;margin-bottom:.9rem;overflow-x:auto;padding-bottom:2px}
-.filter-row::-webkit-scrollbar{display:none}
-.filter-btn{flex-shrink:0;padding:.38rem .85rem;border-radius:var(--r-full);font-family:var(--font-c);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:1.5px solid var(--bd-m);background:transparent;color:var(--t2);cursor:pointer;transition:all .18s;white-space:nowrap}
-.filter-btn.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+/* FILTERS */
+.frow{display:flex;gap:.4rem;margin-bottom:.85rem;overflow-x:auto;padding-bottom:2px}
+.frow::-webkit-scrollbar{display:none}
+.fbtn{flex-shrink:0;padding:.36rem .82rem;border-radius:var(--rf);font-family:var(--fc);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:1.5px solid var(--bdm);background:transparent;color:var(--t2);cursor:pointer;transition:all .18s;white-space:nowrap}
+.fbtn.on{background:var(--o);color:#fff;border-color:var(--o)}
+
+/* SA */
+.sagrid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.85rem}
+.sacard{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rmd);padding:.85rem 1rem}
+.saval{font-family:var(--fc);font-size:26px;font-weight:900;color:var(--t1);line-height:1}
+.salbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-family:var(--fc)}
+.sacard.o{border-color:rgba(249,115,22,.3)}.sacard.o .saval{color:var(--o)}
+.sacard.g{border-color:rgba(34,197,94,.3)}.sacard.g .saval{color:var(--ok)}
+.sacard.b{border-color:rgba(96,165,250,.3)}.sacard.b .saval{color:var(--info)}
+.sacard.y{border-color:rgba(251,191,36,.3)}.sacard.y .saval{color:var(--warn)}
+.urow{display:flex;align-items:center;gap:9px;padding:.65rem 0;border-bottom:1px solid var(--bds)}
+.urow:last-child{border-bottom:none}
+.uava{width:32px;height:32px;border-radius:9px;background:var(--bgi);display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:13px;font-weight:800;color:var(--t2);flex-shrink:0}
+.uinfo{flex:1;min-width:0}
+.unome{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.usub{font-size:11px;color:var(--t2);margin-top:1px}
+.rsel{background:var(--bgi);border:1px solid var(--bdm);border-radius:var(--rsm);padding:4px 7px;color:var(--t1);font-family:var(--fc);font-size:11px;font-weight:700;outline:none;text-transform:uppercase;cursor:pointer}
+
+/* RBADGE */
+.rb{padding:2px 8px;border-radius:var(--rf);font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;font-family:var(--fc)}
+.rb.cliente{background:var(--ol);color:var(--o)}
+.rb.funcionario{background:var(--infob);color:var(--info)}
+.rb.admin{background:var(--warnb);color:var(--warn)}
+.rb.superadmin{background:var(--purb);color:var(--pur)}
 
 /* EMPTY */
-.empty{text-align:center;padding:2.5rem 1rem}
-.empty-ico{font-size:44px;margin-bottom:.65rem}
-.empty-title{font-family:var(--font-c);font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--t2)}
-.empty-sub{font-size:12px;color:var(--t3);margin-top:.3rem}
+.empty{text-align:center;padding:2.25rem 1rem}
+.empty-ico{font-size:40px;margin-bottom:.6rem}
+.empty-t{font-family:var(--fc);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--t2)}
+.empty-s{font-size:12px;color:var(--t3);margin-top:.3rem}
 
 /* PROFILE */
-.profile-ava{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,var(--orange-d),var(--orange));display:flex;align-items:center;justify-content:center;font-family:var(--font-c);font-size:24px;font-weight:900;color:#fff;margin:0 auto .85rem;box-shadow:var(--sh-o)}
-
-/* SUPERADMIN PANEL */
-.sa-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.65rem;margin-bottom:1rem}
-.sa-stat{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-md);padding:.9rem 1rem}
-.sa-stat-val{font-family:var(--font-c);font-size:28px;font-weight:900;color:var(--t1);line-height:1}
-.sa-stat-lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-family:var(--font-c)}
-.sa-stat.orange{border-color:rgba(249,115,22,.3)}
-.sa-stat.orange .sa-stat-val{color:var(--orange)}
-.sa-stat.ok{border-color:rgba(34,197,94,.3)}
-.sa-stat.ok .sa-stat-val{color:var(--ok)}
-.sa-stat.info{border-color:rgba(96,165,250,.3)}
-.sa-stat.info .sa-stat-val{color:var(--info)}
-.sa-stat.warn{border-color:rgba(251,191,36,.3)}
-.sa-stat.warn .sa-stat-val{color:var(--warn)}
-.user-row{display:flex;align-items:center;gap:10px;padding:.7rem 0;border-bottom:1px solid var(--bd-s)}
-.user-row:last-child{border-bottom:none}
-.user-ava{width:34px;height:34px;border-radius:9px;background:var(--bg-in);display:flex;align-items:center;justify-content:center;font-family:var(--font-c);font-size:14px;font-weight:800;color:var(--t2);flex-shrink:0}
-.user-info{flex:1;min-width:0}
-.user-nome{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-sub{font-size:11px;color:var(--t2);margin-top:1px}
-.role-sel{background:var(--bg-in);border:1px solid var(--bd-m);border-radius:var(--r-sm);padding:4px 7px;color:var(--t1);font-family:var(--font-c);font-size:11px;font-weight:700;outline:none;text-transform:uppercase;cursor:pointer}
-
-/* ROLE BADGES */
-.rbadge{padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;font-family:var(--font-c)}
-.rbadge.cliente{background:var(--orange-pale);color:var(--orange)}
-.rbadge.funcionario{background:var(--info-bg);color:var(--info)}
-.rbadge.admin{background:var(--warn-bg);color:var(--warn)}
-.rbadge.superadmin{background:var(--purple-bg);color:var(--purple)}
-
-/* TOAST */
-#toast-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:.45rem;pointer-events:none}
-.toast{background:var(--bg-card);border:1px solid var(--bd-m);border-radius:var(--r-md);padding:.6rem 1rem;font-size:13px;font-weight:600;color:var(--t1);box-shadow:var(--sh-md);pointer-events:auto;display:flex;align-items:center;gap:.55rem;animation:t-in .3s cubic-bezier(.34,1.56,.64,1);max-width:300px;white-space:nowrap}
-.toast.err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1)}
-.toast.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1)}
-.toast.out{animation:t-out .3s ease forwards}
-.t-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.toast.err .t-dot{background:var(--err)}.toast.ok .t-dot{background:var(--ok)}.toast:not(.err):not(.ok) .t-dot{background:var(--orange)}
-@keyframes t-in{from{opacity:0;transform:translateY(-10px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes t-out{to{opacity:0;transform:translateY(-10px) scale(.9)}}
-
-/* MODAL */
-#modal-wrap{position:fixed;inset:0;z-index:8000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
-#modal-wrap.on{display:flex}
-.modal{background:var(--bg-card);border-radius:var(--r-xl) var(--r-xl) 0 0;border:1px solid var(--bd-m);border-bottom:none;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;animation:m-in .3s cubic-bezier(.34,1.56,.64,1);padding-bottom:env(safe-area-inset-bottom)}
-@keyframes m-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-hdr{padding:1.1rem 1.2rem .7rem;border-bottom:1px solid var(--bd-s);flex-shrink:0}
-.modal-drag{width:32px;height:4px;background:var(--bd-m);border-radius:2px;margin:0 auto .8rem}
-.modal-title{font-family:var(--font-c);font-size:19px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
-.modal-sub{font-size:13px;color:var(--t2);margin-top:.2rem}
-.modal-body{flex:1;overflow-y:auto;padding:1.1rem 1.2rem}
-.modal-footer{padding:.8rem 1.2rem 1rem;display:flex;gap:.55rem;flex-shrink:0}
-.btn-mc{flex:1;padding:.75rem;border-radius:var(--r-sm);font-family:var(--font-c);font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:var(--bg-in);border:1px solid var(--bd-m);color:var(--t2);cursor:pointer;transition:all .18s}
-.btn-mc:hover{background:var(--bg-s)}
-.btn-mok{flex:2;padding:.75rem;border-radius:var(--r-sm);font-family:var(--font-c);font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(135deg,var(--orange-d),var(--orange));border:none;color:#fff;cursor:pointer;transition:all .18s;box-shadow:var(--sh-o)}
-.btn-mok:hover{opacity:.9}.btn-mok:disabled{opacity:.5;cursor:not-allowed}
+.pava{width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,var(--od),var(--o));display:flex;align-items:center;justify-content:center;font-family:var(--fc);font-size:22px;font-weight:900;color:#fff;margin:0 auto .8rem;box-shadow:var(--sho)}
 
 /* APP FOOTER */
-.app-footer{text-align:center;padding:.9rem 1rem .6rem;border-top:1px solid var(--bd-s);flex-shrink:0}
-.app-footer-brand{font-family:var(--font-c);font-size:13px;font-weight:800;color:var(--t3);letter-spacing:.5px}
-.app-footer-ver{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--mono)}
+.apf{text-align:center;padding:.8rem 1rem .5rem;border-top:1px solid var(--bds);margin-top:.5rem}
+.apf-b{font-family:var(--fc);font-size:12px;font-weight:800;color:var(--t3);letter-spacing:.5px}
+.apf-v{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
 
-/* UPDATE BANNER */
-#upd-banner{position:fixed;top:0;left:0;right:0;background:var(--orange);color:#fff;font-family:var(--font-c);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:.55rem 1rem;text-align:center;cursor:pointer;z-index:9998;display:none}
-#upd-banner.show{display:flex;align-items:center;justify-content:center;gap:.5rem}
+/* TOAST */
+#tw{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:.4rem;pointer-events:none}
+.toast{background:var(--bgc);border:1px solid var(--bdm);border-radius:var(--rmd);padding:.55rem .95rem;font-size:13px;font-weight:600;color:var(--t1);box-shadow:var(--shm);pointer-events:auto;display:flex;align-items:center;gap:.5rem;animation:tin .3s cubic-bezier(.34,1.56,.64,1);max-width:300px;white-space:nowrap}
+.toast.err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1)}
+.toast.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1)}
+.toast.out{animation:tout .3s ease forwards}
+.td{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.toast.err .td{background:var(--err)}.toast.ok .td{background:var(--ok)}.toast:not(.err):not(.ok) .td{background:var(--o)}
+@keyframes tin{from{opacity:0;transform:translateY(-10px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(-10px) scale(.9)}}
+
+/* MODAL */
+#mw{position:fixed;inset:0;z-index:8000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+#mw.on{display:flex}
+.modal{background:var(--bgc);border-radius:var(--rxl) var(--rxl) 0 0;border:1px solid var(--bdm);border-bottom:none;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;animation:min .3s cubic-bezier(.34,1.56,.64,1);padding-bottom:env(safe-area-inset-bottom)}
+@keyframes min{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhdr{padding:1rem 1.1rem .65rem;border-bottom:1px solid var(--bds);flex-shrink:0}
+.mdrag{width:30px;height:4px;background:var(--bdm);border-radius:2px;margin:0 auto .75rem}
+.mtitle{font-family:var(--fc);font-size:18px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
+.msub{font-size:13px;color:var(--t2);margin-top:.2rem}
+.mbody{flex:1;overflow-y:auto;padding:1rem 1.1rem}
+.mfoot{padding:.75rem 1.1rem .9rem;display:flex;gap:.5rem;flex-shrink:0}
+.btmc{flex:1;padding:.72rem;border-radius:var(--rsm);font-family:var(--fc);font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:var(--bgi);border:1px solid var(--bdm);color:var(--t2);cursor:pointer}
+.btmc:hover{background:var(--bgs)}
+.btmok{flex:2;padding:.72rem;border-radius:var(--rsm);font-family:var(--fc);font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(135deg,var(--od),var(--o));border:none;color:#fff;cursor:pointer;box-shadow:var(--sho)}
+.btmok:hover{opacity:.9}.btmok:disabled{opacity:.5;cursor:not-allowed}
 
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bd-m);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(--bdm);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="ld">
-  <div class="ld-ico"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
-  <div class="ld-name">Pit<span>Stop</span></div>
-  <div class="ld-sub">Garage RP</div>
-  <div class="ld-bar"><i></i></div>
+  <div class="ldi"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+  <div class="ldn">Pit<span>Stop</span></div>
+  <div class="lds">Garage RP</div>
+  <div class="ldb"><i></i></div>
 </div>
 
-<div id="upd-banner" onclick="applyUpdate()">⚡ Nova versão disponível — toque para atualizar</div>
-
-<!-- AUTH -->
 <div id="auth">
-  <div class="auth-card">
-    <div class="auth-hero">
-      <div class="auth-ico"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+  <div class="ac">
+    <div class="ah">
+      <div class="ahi"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
       <h1>Pit<span>Stop</span> Garage</h1>
       <p>Agende seu serviço mesmo offline do servidor</p>
     </div>
-    <div class="auth-body">
-      <div class="a-tabs">
-        <div class="a-tab on" onclick="authTab('login')">Entrar</div>
-        <div class="a-tab" onclick="authTab('register')">Cadastrar</div>
+    <div class="ab">
+      <div class="atabs">
+        <div class="atab on" onclick="authTab('login')">Entrar</div>
+        <div class="atab" onclick="authTab('register')">Cadastrar</div>
       </div>
-      <div class="a-form on" id="form-login">
-        <div class="fld"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email"></div>
-        <div class="fld"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
-        <button class="btn-main" onclick="doLogin()" id="btn-login">Entrar na Garagem</button>
-        <div class="a-msg" id="msg-login"></div>
-        <div style="text-align:center;margin-top:.9rem"><span style="font-size:12px;color:var(--t3);cursor:pointer" onclick="doReset()">Esqueci minha senha</span></div>
+      <div class="aform on" id="fl">
+        <div class="fld"><label>E-mail</label><input type="email" id="le" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="fld"><label>Senha</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="btnm" id="btnl" onclick="doLogin()">Entrar na Garagem</button>
+        <div class="amsg" id="ml"></div>
+        <div style="text-align:center;margin-top:.8rem"><span style="font-size:12px;color:var(--t3);cursor:pointer" onclick="doReset()">Esqueci minha senha</span></div>
       </div>
-      <div class="a-form" id="form-register">
-        <div class="fld"><label>Nome (Nick RP)</label><input type="text" id="r-nome" placeholder="Ex: Carlos Mechanic" autocomplete="name"></div>
-        <div class="fld"><label>Contato (Discord ou Tel)</label><input type="text" id="r-contato" placeholder="carlos#1234 ou (11) 99999-0000"></div>
-        <div class="fld"><label>E-mail</label><input type="email" id="r-email" placeholder="seu@email.com" autocomplete="email"></div>
-        <div class="fld"><label>Senha</label><input type="password" id="r-pass" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
-        <button class="btn-main" onclick="doRegister()" id="btn-register">Criar Conta</button>
-        <div class="a-msg" id="msg-register"></div>
+      <div class="aform" id="fr">
+        <div class="fld"><label>Nome (Nick RP)</label><input type="text" id="rn" placeholder="Ex: Carlos Mechanic" autocomplete="name"></div>
+        <div class="fld"><label>Contato (Discord ou Tel)</label><input type="text" id="rc" placeholder="carlos#1234 ou (11) 99999-0000"></div>
+        <div class="fld"><label>E-mail</label><input type="email" id="re" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="fld"><label>Senha</label><input type="password" id="rp" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
+        <button class="btnm" id="btnr" onclick="doRegister()">Criar Conta</button>
+        <div class="amsg" id="mr"></div>
       </div>
     </div>
   </div>
-  <div class="auth-footer">PitStop Garage · © 2025 Paulo Santos</div>
+  <div class="afoot">PitStop Garage · © 2025 Paulo Santos</div>
 </div>
 
-<!-- APP -->
 <div class="app" id="app">
-  <!-- HEADER -->
   <div class="hdr">
     <div class="hdr-l">
       <div class="hdr-logo"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
       <div class="hdr-brand">Pit<span>Stop</span></div>
       <div class="hdr-sep"></div>
-      <div class="hdr-user">
-        <div class="hdr-user-name" id="hdr-nome">—</div>
-        <div class="hdr-user-role" id="hdr-role">—</div>
-      </div>
+      <div class="hdr-user"><div class="hdr-user-name" id="hun">—</div><div class="hdr-user-role" id="hur">—</div></div>
     </div>
     <div class="hdr-r">
-      <div class="btn-ico" onclick="doLogout()" title="Sair">
+      <div class="btico" onclick="doLogout()" title="Sair">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </div>
     </div>
   </div>
-
-  <!-- BODY -->
   <div class="app-body">
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-      <div class="sb-nav" id="sb-nav"></div>
-      <div class="sb-div"></div>
-      <div class="sb-logout" onclick="doLogout()">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sair
-      </div>
-    </div>
-
-    <!-- PAGES -->
+    <div class="sb" id="sb"><div class="sb-nav" id="sbn"></div><div class="sb-div"></div><div class="sb-out" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</div></div>
     <div class="pages">
 
       <!-- HOME -->
-      <div class="page on" id="pg-home"><div class="page-inner">
-        <div class="pg-title" id="home-greeting">Olá 👋</div>
-        <div class="pg-sub">Pronto para agendar?</div>
-        <div id="next-wrap"></div>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-val" id="s-pend">-</div><div class="stat-lbl">Pendentes</div></div>
-          <div class="stat-card"><div class="stat-val" id="s-done">-</div><div class="stat-lbl">Concluídos</div></div>
-          <div class="stat-card"><div class="stat-val" id="s-vagas">-</div><div class="stat-lbl">Vagas Hoje</div></div>
+      <div class="page on" id="pg-home"><div class="pi">
+        <div class="pgtitle" id="hgreet">Olá 👋</div>
+        <div class="pgsub">Pronto para agendar?</div>
+        <div id="nwrap"></div>
+        <div class="sgrid">
+          <div class="scard"><div class="sval" id="sp">-</div><div class="slbl">Pendentes</div></div>
+          <div class="scard"><div class="sval" id="sd">-</div><div class="slbl">Concluídos</div></div>
+          <div class="scard"><div class="sval" id="sv">-</div><div class="slbl">Vagas Hoje</div></div>
         </div>
-        <div class="notice"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><p>Cada horário suporta <strong>2 veículos</strong>. Você pode ter <strong>1 agendamento ativo</strong> por vez.</p></div>
-        <div class="sg-lbl">Ações rápidas</div>
-        <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agendar')">
-          <div class="svc-ico" style="width:38px;height:38px;flex-shrink:0;margin:0"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></div>
-          <div style="flex:1"><div style="font-family:var(--font-c);font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Novo Agendamento</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Reserve seu horário na oficina</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <div class="notice"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><p>Cada horário suporta <strong>2 veículos</strong>. Máximo <strong>1 agendamento ativo</strong> por vez.</p></div>
+        <div class="card" style="display:flex;gap:.7rem;align-items:center;cursor:pointer" onclick="goTab('agendar')">
+          <div class="svico" style="width:36px;height:36px;flex-shrink:0;margin:0"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></div>
+          <div style="flex:1"><div style="font-family:var(--fc);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Novo Agendamento</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Reserve seu horário na oficina</div></div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agenda')">
-          <div class="svc-ico" style="width:38px;height:38px;flex-shrink:0;margin:0;background:var(--ok-bg)"><svg viewBox="0 0 24 24" style="fill:var(--ok)"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg></div>
-          <div style="flex:1"><div style="font-family:var(--font-c);font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Ver e gerenciar seus agendamentos</div></div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <div class="card" style="display:flex;gap:.7rem;align-items:center;cursor:pointer" onclick="goTab('agenda')">
+          <div class="svico" style="width:36px;height:36px;flex-shrink:0;margin:0;background:var(--okb)"><svg viewBox="0 0 24 24" style="fill:var(--ok)"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg></div>
+          <div style="flex:1"><div style="font-family:var(--fc);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Ver e gerenciar seus agendamentos</div></div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
       <!-- AGENDAR -->
-      <div class="page" id="pg-agendar"><div class="page-inner">
-        <div class="pg-title">Agendar</div>
-        <div class="pg-sub">Escolha o serviço e horário</div>
-        <div class="card-lbl">1. Tipo de Serviço</div>
-        <div class="svc-grid">
-          <div class="svc-card" id="sc-reparo" onclick="selSvc('reparo')">
-            <div class="svc-ico"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div>
-            <div class="svc-name">Reparo</div><div class="svc-desc">Consertos e manutenção</div>
-          </div>
-          <div class="svc-card" id="sc-tunning" onclick="selSvc('tunning')">
-            <div class="svc-ico"><svg viewBox="0 0 24 24"><path d="M13.5 2c-5.629 0-10.212 4.436-10.475 10h-3.025l4 5.917 4-5.917h-2.485c.254-4.989 4.396-8.974 9.485-8.974 5.238 0 9.5 4.262 9.5 9.5 0 5.173-4.186 9.385-9.342 9.494l.002 2.008c6.396-.109 11.34-5.327 11.34-11.502 0-6.351-5.149-11.526-11.5-11.526z"/></svg></div>
-            <div class="svc-name">Tunning</div><div class="svc-desc">Modificações e upgrades</div>
-          </div>
+      <div class="page" id="pg-agendar"><div class="pi">
+        <div class="pgtitle">Agendar</div>
+        <div class="pgsub">Escolha o serviço e horário</div>
+        <div class="clbl">1. Tipo de Serviço</div>
+        <div class="svgrid">
+          <div class="svcard" id="sc-reparo" onclick="selSvc('reparo')"><div class="svico"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div><div class="svname">Reparo</div><div class="svdesc">Consertos e manutenção</div></div>
+          <div class="svcard" id="sc-tunning" onclick="selSvc('tunning')"><div class="svico"><svg viewBox="0 0 24 24"><path d="M13.5 2c-5.629 0-10.212 4.436-10.475 10h-3.025l4 5.917 4-5.917h-2.485c.254-4.989 4.396-8.974 9.485-8.974 5.238 0 9.5 4.262 9.5 9.5 0 5.173-4.186 9.385-9.342 9.494l.002 2.008c6.396-.109 11.34-5.327 11.34-11.502 0-6.351-5.149-11.526-11.5-11.526z"/></svg></div><div class="svname">Tunning</div><div class="svdesc">Modificações e upgrades</div></div>
         </div>
-        <div class="card-lbl">2. Seu Veículo</div>
-        <div class="fld" style="margin-bottom:1rem"><input type="text" id="veiculo-input" placeholder="Ex: Sultan RS, Zentorno, Banshee..."></div>
-        <div class="card-lbl">3. Observações (opcional)</div>
-        <div class="fld" style="margin-bottom:1rem"><textarea id="obs-input" placeholder="Descreva o problema ou o que deseja fazer..."></textarea></div>
-        <div class="card-lbl">4. Escolha o Horário</div>
-        <div class="filter-row" id="date-filter"></div>
-        <div class="slot-grid" id="slot-grid"><div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Carregando...</div></div></div>
-        <div style="height:.85rem"></div>
-        <button class="btn-main" id="btn-confirmar" onclick="confirmar()" disabled>Confirmar Agendamento</button>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div class="clbl">2. Seu Veículo</div>
+        <div class="fld" style="margin-bottom:.9rem"><input type="text" id="vinput" placeholder="Ex: Sultan RS, Zentorno, Banshee..."></div>
+        <div class="clbl">3. Observações (opcional)</div>
+        <div class="fld" style="margin-bottom:.9rem"><textarea id="oinput" placeholder="Descreva o problema ou o que deseja fazer..."></textarea></div>
+        <div class="clbl">4. Escolha o Horário</div>
+        <div class="frow" id="dfilter"></div>
+        <div class="slotgrid" id="slotgrid"></div>
+        <div style="height:.75rem"></div>
+        <button class="btnm" id="btnconf" onclick="confirmar()" disabled>Confirmar Agendamento</button>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
       <!-- AGENDA -->
-      <div class="page" id="pg-agenda"><div class="page-inner">
-        <div class="pg-title">Minha Agenda</div>
-        <div class="pg-sub">Seus agendamentos</div>
-        <div class="filter-row">
-          <button class="filter-btn on" onclick="filtAgenda('todos',this)">Todos</button>
-          <button class="filter-btn" onclick="filtAgenda('pendente',this)">Pendentes</button>
-          <button class="filter-btn" onclick="filtAgenda('agendado',this)">Agendados</button>
-          <button class="filter-btn" onclick="filtAgenda('concluido',this)">Concluídos</button>
-          <button class="filter-btn" onclick="filtAgenda('cancelado',this)">Cancelados</button>
+      <div class="page" id="pg-agenda"><div class="pi">
+        <div class="pgtitle">Minha Agenda</div>
+        <div class="pgsub">Seus agendamentos</div>
+        <div class="frow">
+          <button class="fbtn on" onclick="filtA('todos',this)">Todos</button>
+          <button class="fbtn" onclick="filtA('pendente',this)">Pendentes</button>
+          <button class="fbtn" onclick="filtA('agendado',this)">Agendados</button>
+          <button class="fbtn" onclick="filtA('concluido',this)">Concluídos</button>
+          <button class="fbtn" onclick="filtA('cancelado',this)">Cancelados</button>
         </div>
-        <div id="agenda-list"></div>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div id="aglist"></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
       <!-- SERVIÇOS -->
-      <div class="page" id="pg-servicos"><div class="page-inner">
-        <div class="pg-title">Serviços</div>
-        <div class="pg-sub">Histórico de atendimentos da oficina</div>
-        <div class="filter-row">
-          <button class="filter-btn on" onclick="filtServicos('todos',this)">Todos</button>
-          <button class="filter-btn" onclick="filtServicos('pendente',this)">Pendentes</button>
-          <button class="filter-btn" onclick="filtServicos('agendado',this)">Agendados</button>
-          <button class="filter-btn" onclick="filtServicos('concluido',this)">Concluídos</button>
-          <button class="filter-btn" onclick="filtServicos('cancelado',this)">Cancelados</button>
+      <div class="page" id="pg-servicos"><div class="pi">
+        <div class="pgtitle">Serviços</div>
+        <div class="pgsub">Histórico de atendimentos</div>
+        <div class="frow">
+          <button class="fbtn on" onclick="filtS('todos',this)">Todos</button>
+          <button class="fbtn" onclick="filtS('pendente',this)">Pendentes</button>
+          <button class="fbtn" onclick="filtS('agendado',this)">Agendados</button>
+          <button class="fbtn" onclick="filtS('concluido',this)">Concluídos</button>
+          <button class="fbtn" onclick="filtS('cancelado',this)">Cancelados</button>
         </div>
-        <div id="servicos-list"></div>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div id="svclist"></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
-      <!-- PAINEL (staff) -->
-      <div class="page" id="pg-painel"><div class="page-inner">
-        <div class="pg-title">Painel</div>
-        <div class="pg-sub" id="painel-sub">Agenda de hoje</div>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-val" id="p-total">-</div><div class="stat-lbl">Total</div></div>
-          <div class="stat-card"><div class="stat-val" id="p-pend">-</div><div class="stat-lbl">Pendentes</div></div>
-          <div class="stat-card"><div class="stat-val" id="p-done">-</div><div class="stat-lbl">Concluídos</div></div>
+      <!-- PAINEL -->
+      <div class="page" id="pg-painel"><div class="pi">
+        <div class="pgtitle">Painel</div>
+        <div class="pgsub" id="psub">Agenda de hoje</div>
+        <div class="sgrid">
+          <div class="scard"><div class="sval" id="pt">-</div><div class="slbl">Total</div></div>
+          <div class="scard"><div class="sval" id="pp">-</div><div class="slbl">Pendentes</div></div>
+          <div class="scard"><div class="sval" id="pc">-</div><div class="slbl">Concluídos</div></div>
         </div>
-        <div class="filter-row">
-          <button class="filter-btn on" onclick="filtPainel('todos',this)">Todos</button>
-          <button class="filter-btn" onclick="filtPainel('reparo',this)">Reparo</button>
-          <button class="filter-btn" onclick="filtPainel('tunning',this)">Tunning</button>
+        <div class="frow">
+          <button class="fbtn on" onclick="filtP('todos',this)">Todos</button>
+          <button class="fbtn" onclick="filtP('reparo',this)">Reparo</button>
+          <button class="fbtn" onclick="filtP('tunning',this)">Tunning</button>
         </div>
-        <div id="painel-list"></div>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div id="plist"></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
-      <!-- SUPERADMIN -->
-      <div class="page" id="pg-superadmin"><div class="page-inner">
-        <div class="pg-title">Super Admin</div>
-        <div class="pg-sub">Visão geral do sistema</div>
-        <div class="sa-grid">
-          <div class="sa-stat orange"><div class="sa-stat-val" id="sa-total-users">-</div><div class="sa-stat-lbl">Usuários</div></div>
-          <div class="sa-stat info"><div class="sa-stat-val" id="sa-total-appts">-</div><div class="sa-stat-lbl">Agendamentos</div></div>
-          <div class="sa-stat warn"><div class="sa-stat-val" id="sa-pend">-</div><div class="sa-stat-lbl">Pendentes</div></div>
-          <div class="sa-stat ok"><div class="sa-stat-val" id="sa-done">-</div><div class="sa-stat-lbl">Concluídos</div></div>
+      <!-- SUPER ADMIN -->
+      <div class="page" id="pg-sa"><div class="pi">
+        <div class="pgtitle">Super Admin</div>
+        <div class="pgsub">Visão geral do sistema</div>
+        <div class="sagrid">
+          <div class="sacard o"><div class="saval" id="sa-u">-</div><div class="salbl">Usuários</div></div>
+          <div class="sacard b"><div class="saval" id="sa-a">-</div><div class="salbl">Agendamentos</div></div>
+          <div class="sacard y"><div class="saval" id="sa-p">-</div><div class="salbl">Pendentes</div></div>
+          <div class="sacard g"><div class="saval" id="sa-c">-</div><div class="salbl">Concluídos</div></div>
         </div>
-        <div class="filter-row" style="margin-bottom:0">
-          <button class="filter-btn on" onclick="saTab('usuarios',this)">Usuários</button>
-          <button class="filter-btn" onclick="saTab('agendamentos',this)">Agendamentos</button>
+        <div class="frow" style="margin-bottom:0">
+          <button class="fbtn on" onclick="saTab('users',this)">Usuários</button>
+          <button class="fbtn" onclick="saTab('appts',this)">Agendamentos</button>
         </div>
-        <div id="sa-usuarios" style="margin-top:.85rem">
-          <div class="card"><div class="card-lbl">Todos os Usuários</div><div id="sa-users-list"></div></div>
-        </div>
-        <div id="sa-agendamentos" style="display:none;margin-top:.85rem">
-          <div id="sa-appts-list"></div>
-        </div>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6</div></div>
+        <div id="sa-users" style="margin-top:.75rem"><div class="card"><div class="clbl">Todos os Usuários</div><div id="sa-ulist"></div></div></div>
+        <div id="sa-appts" style="display:none;margin-top:.75rem"><div id="sa-alist"></div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0</div></div>
       </div></div>
 
       <!-- PERFIL -->
-      <div class="page" id="pg-perfil"><div class="page-inner" style="max-width:460px">
-        <div class="pg-title">Perfil</div>
-        <div class="pg-sub">Sua conta</div>
-        <div class="card" style="text-align:center;padding:1.4rem">
-          <div class="profile-ava" id="pf-ava">?</div>
-          <div style="font-family:var(--font-c);font-size:21px;font-weight:900;letter-spacing:.5px" id="pf-nome">-</div>
-          <div style="font-size:12px;color:var(--t2);margin-top:3px" id="pf-email">-</div>
-          <div style="margin-top:.65rem" id="pf-badge"></div>
+      <div class="page" id="pg-perfil"><div class="pi" style="max-width:460px">
+        <div class="pgtitle">Perfil</div>
+        <div class="pgsub">Sua conta</div>
+        <div class="card" style="text-align:center;padding:1.3rem">
+          <div class="pava" id="pava">?</div>
+          <div style="font-family:var(--fc);font-size:20px;font-weight:900;letter-spacing:.5px" id="pnome">-</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:3px" id="pemail">-</div>
+          <div style="margin-top:.6rem" id="pbadge"></div>
         </div>
         <div class="card">
-          <div class="card-lbl">Informações</div>
-          <div class="appt-row" style="margin-bottom:.5rem"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><span>Contato: </span><strong id="pf-contato">-</strong></div>
-          <div class="appt-row" style="margin-bottom:.5rem"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>E-mail: </span><strong id="pf-email2">-</strong></div>
-          <div class="appt-row"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Cargo: </span><strong id="pf-role">-</strong></div>
+          <div class="clbl">Informações</div>
+          <div class="arow" style="margin-bottom:.45rem">📞 Contato: <strong id="pcont">-</strong></div>
+          <div class="arow" style="margin-bottom:.45rem">✉️ E-mail: <strong id="pemail2">-</strong></div>
+          <div class="arow">👤 Cargo: <strong id="prole">-</strong></div>
         </div>
-        <div class="card">
-          <div class="card-lbl">App</div>
-          <div style="display:flex;align-items:center;padding:.2rem 0"><div style="flex:1;font-size:13px;color:var(--t2)">Versão</div><div style="font-family:var(--mono);font-size:12px;color:var(--orange)">v1.0.6</div></div>
-        </div>
-        <button class="btn-main" style="background:var(--err-bg);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
-        <div class="app-footer"><div class="app-footer-brand">PitStop Garage</div><div class="app-footer-ver">v1.0.6 · © 2025 Paulo Santos</div></div>
+        <div class="card"><div class="clbl">App</div><div style="display:flex;align-items:center"><div style="flex:1;font-size:13px;color:var(--t2)">Versão</div><div style="font-family:var(--fm);font-size:12px;color:var(--o)">v2.0.0</div></div></div>
+        <button class="btnm" style="background:var(--errb);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v2.0.0 · © 2025 Paulo Santos</div></div>
       </div></div>
 
-    </div><!-- /pages -->
-  </div><!-- /app-body -->
-
-  <!-- TABS (mobile) -->
+    </div>
+  </div>
   <div class="tabs" id="tabs"></div>
-</div><!-- /app -->
+</div>
 
-<div id="toast-wrap"></div>
-
-<div id="modal-wrap" onclick="closeMBg(event)">
+<div id="tw"></div>
+<div id="mw" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="modal-hdr">
-      <div class="modal-drag"></div>
-      <div class="modal-title" id="m-title">Confirmar</div>
-      <div class="modal-sub" id="m-sub"></div>
-    </div>
-    <div class="modal-body" id="m-body"></div>
-    <div class="modal-footer">
-      <button class="btn-mc" onclick="closeModal()">Cancelar</button>
-      <button class="btn-mok" id="m-ok">Confirmar</button>
-    </div>
+    <div class="mhdr"><div class="mdrag"></div><div class="mtitle" id="mt">Confirmar</div><div class="msub" id="ms"></div></div>
+    <div class="mbody" id="mb"></div>
+    <div class="mfoot"><button class="btmc" onclick="closeModal()">Cancelar</button><button class="btmok" id="mok">Confirmar</button></div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   CONFIG
-═══════════════════════════════════════════════════ */
-const SUPABASE_URL = 'https://ddanwviracljymqlvaub.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYW53dmlyYWNsanltcWx2YXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDIxOTEsImV4cCI6MjA5NTQxODE5MX0.vWjAgqNbKnmisOmXtcJ-FXrVLC9XXR_YVzs75-UFPlo';
+const SURL = 'https://ddanwviracljymqlvaub.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYW53dmlyYWNsanltcWx2YXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDIxOTEsImV4cCI6MjA5NTQxODE5MX0.vWjAgqNbKnmisOmXtcJ-FXrVLC9XXR_YVzs75-UFPlo';
 const HORARIOS = ['19:00','19:20','19:40','20:00','20:20','20:40','21:00','21:20','21:40','22:00'];
 const MAX_SLOT = 2;
-const APP_VERSION = 'v1.0.6';
+const VER = 'v2.0.0';
 
-/* ═══════════════════════════════════════════════════
-   GLOBALS
-═══════════════════════════════════════════════════ */
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
-let CU = null, profile = null, rtSub = null, newSW = null;
-let myAppts = [], painelAppts = [], servicosData = [];
-let selSvc_val = null, selSlot = null, selDate = null;
-let agendaFilt = 'todos', painelFilt = 'todos', svcFilt = 'todos';
-let booting = false;
+const {createClient} = supabase;
+const db = createClient(SURL, SKEY);
 
-/* ═══════════════════════════════════════════════════
-   UTILS
-═══════════════════════════════════════════════════ */
+let CU=null, profile=null, rt=null;
+let myA=[], painelA=[], svcA=[], saU=[], saA=[];
+let selSvc=null, selSlot=null, selDate=null;
+let filtAg='todos', filtPn='todos', filtSv='todos', saTabCur='users';
+
+// Utils
 const g = id => document.getElementById(id);
-const v = id => { const e = g(id); return e ? e.value : ''; };
-function toast(msg, type='') {
-  const w = g('toast-wrap'), el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<span class="t-dot"></span>${msg}`;
+const gv = id => { const e=g(id); return e?e.value:''; };
+function localDateStr(offset=0) {
+  const d = new Date(); d.setDate(d.getDate()+offset);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtT(s) {
+  if(!s) return ''; return s.substring(11,16)||'';
+}
+function fmtD(s) {
+  if(!s) return '';
+  try { const d=new Date(s.replace(' ','T')+'Z'); return d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',timeZone:'America/Sao_Paulo'}); } catch(e){return s.substring(0,10);}
+}
+function rl(r){return {cliente:'Cliente',funcionario:'Funcionário',admin:'Admin',superadmin:'Super Admin'}[r]||r;}
+function toast(msg,type=''){
+  const w=g('tw'),el=document.createElement('div');
+  el.className='toast '+type;
+  el.innerHTML='<span class="td"></span>'+msg;
   w.appendChild(el);
-  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3200);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);},3200);
 }
-function setMsg(id, msg, type='') { const e=g(id); if(e){e.textContent=msg;e.className=`a-msg ${type}`;} }
-function fmtTime(ts) {
-  if(!ts) return '';
-  // Suporta "YYYY-MM-DD HH:MM:00" e ISO strings
-  const s = ts.includes('T') ? ts : ts.replace(' ', 'T');
-  const d = new Date(s);
-  if(isNaN(d)) return ts.substring(11,16)||ts;
-  return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-}
-function fmtDate(ts) {
-  if(!ts) return '';
-  const s = ts.includes('T') ? ts : ts.replace(' ', 'T');
-  const d = new Date(s);
-  if(isNaN(d)) return ts.substring(0,10)||ts;
-  return d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-}
-function fmtShort(ts) {
-  if(!ts) return '';
-  const s = ts.includes('T') ? ts : ts.replace(' ', 'T');
-  const d = new Date(s);
-  if(isNaN(d)) return ts;
-  return d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'})+' '+fmtTime(ts);
-}
-function roleLabel(r) { return {cliente:'Cliente',funcionario:'Funcionário',admin:'Admin',superadmin:'Super Admin'}[r]||r; }
+function setMsg(id,msg,type=''){const e=g(id);if(e){e.textContent=msg;e.className='amsg '+type;}}
 
-/* ═══════════════════════════════════════════════════
-   ICONS (declarados com function para hoisting)
-═══════════════════════════════════════════════════ */
-function icoHome()    { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`; }
-function icoCalPlus() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>`; }
-function icoCal()     { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>`; }
-function icoUser()    { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`; }
-function icoDash()    { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`; }
-function icoSettings(){ return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`; }
-function icoWrench()  { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>`; }
-function icoStar()    { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`; }
-
-/* ═══════════════════════════════════════════════════
-   AUTH
-═══════════════════════════════════════════════════ */
-function authTab(tab) {
-  g('form-login').classList.toggle('on', tab==='login');
-  g('form-register').classList.toggle('on', tab==='register');
-  document.querySelectorAll('.a-tab').forEach((t,i) => t.classList.toggle('on', i===(tab==='login'?0:1)));
+// Auth
+function authTab(t){
+  g('fl').classList.toggle('on',t==='login');
+  g('fr').classList.toggle('on',t==='register');
+  document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',i===(t==='login'?0:1)));
 }
-async function doLogin() {
-  const email=v('l-email').trim(), pass=v('l-pass');
-  if(!email||!pass) return setMsg('msg-login','Preencha todos os campos','err');
-  const btn=g('btn-login'); btn.disabled=true; btn.textContent='Entrando...';
-  const {error} = await db.auth.signInWithPassword({email, password:pass});
-  btn.disabled=false; btn.textContent='Entrar na Garagem';
-  if(error) setMsg('msg-login','E-mail ou senha incorretos','err');
+async function doLogin(){
+  const e=gv('le').trim(),p=gv('lp');
+  if(!e||!p)return setMsg('ml','Preencha todos os campos','err');
+  g('btnl').disabled=true; g('btnl').textContent='Entrando...';
+  const {error}=await db.auth.signInWithPassword({email:e,password:p});
+  g('btnl').disabled=false; g('btnl').textContent='Entrar na Garagem';
+  if(error)setMsg('ml','E-mail ou senha incorretos','err');
 }
-async function doRegister() {
-  const nome=v('r-nome').trim(), contato=v('r-contato').trim(), email=v('r-email').trim(), pass=v('r-pass');
-  if(!nome||!contato||!email||!pass) return setMsg('msg-register','Preencha todos os campos','err');
-  if(pass.length<6) return setMsg('msg-register','Senha mín. 6 caracteres','err');
-  const btn=g('btn-register'); btn.disabled=true; btn.textContent='Criando...';
-  const {error} = await db.auth.signUp({email, password:pass, options:{data:{nome,contato,role:'cliente'}}});
-  btn.disabled=false; btn.textContent='Criar Conta';
-  if(error) return setMsg('msg-register',error.message,'err');
-  setMsg('msg-register','✅ Conta criada! Verifique seu e-mail.','ok');
+async function doRegister(){
+  const nome=gv('rn').trim(),cont=gv('rc').trim(),email=gv('re').trim(),pass=gv('rp');
+  if(!nome||!cont||!email||!pass)return setMsg('mr','Preencha todos os campos','err');
+  if(pass.length<6)return setMsg('mr','Senha mín. 6 caracteres','err');
+  g('btnr').disabled=true; g('btnr').textContent='Criando...';
+  const {error}=await db.auth.signUp({email,password:pass,options:{data:{nome,contato:cont}}});
+  g('btnr').disabled=false; g('btnr').textContent='Criar Conta';
+  if(error)return setMsg('mr',error.message,'err');
+  setMsg('mr','✅ Conta criada! Faça login.','ok');
 }
-async function doReset() {
-  const email=prompt('Digite seu e-mail:'); if(!email) return;
-  const {error} = await db.auth.resetPasswordForEmail(email);
-  if(error) toast('Erro ao enviar e-mail','err'); else toast('E-mail enviado! Verifique sua caixa.','ok');
+async function doReset(){
+  const e=prompt('Digite seu e-mail:');if(!e)return;
+  const {error}=await db.auth.resetPasswordForEmail(e);
+  if(error)toast('Erro ao enviar e-mail','err');else toast('E-mail enviado!','ok');
 }
-async function doLogout() {
-  try { if(rtSub) await db.removeChannel(rtSub); } catch(e) {}
-  rtSub = null; CU = null; profile = null;
+async function doLogout(){
+  try{if(rt)await db.removeChannel(rt);}catch(e){}
+  rt=null;CU=null;profile=null;
   await db.auth.signOut();
 }
 
-/* ═══════════════════════════════════════════════════
-   BOOT
-═══════════════════════════════════════════════════ */
-async function boot(user) {
-  if (booting) return;
-  booting = true;
-  CU = user;
-  console.log('[boot] user id:', user.id, 'email:', user.email);
-
-  // Tenta buscar perfil existente
-  const { data: p, error: selErr } = await db
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  console.log('[boot] profile query:', { p, selErr });
-
-  if (selErr) {
-    console.error('[boot] select error:', selErr);
-    toast('Erro ao buscar perfil: ' + selErr.message, 'err');
-    booting = false;
-    return;
-  }
-
-  if (!p) {
-    // Perfil não existe — cria
-    console.log('[boot] creating profile...');
-    const m = user.user_metadata || {};
-    const { error: insErr } = await db.from('profiles').insert({
-      id: user.id,
-      nome: m.nome || user.email?.split('@')[0] || 'Usuário',
-      contato: m.contato || '',
-      role: 'cliente'
-    });
-    if (insErr) {
-      console.error('[boot] insert error:', insErr);
-      toast('Erro ao criar perfil: ' + insErr.message, 'err');
-      booting = false;
-      return;
-    }
-    // Re-busca após criar
-    const { data: p2, error: sel2Err } = await db
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle();
-    if (sel2Err || !p2) {
-      console.error('[boot] re-select error:', sel2Err);
-      toast('Não foi possível carregar perfil', 'err');
-      booting = false;
-      return;
-    }
-    profile = p2;
-  } else {
-    profile = p;
-  }
-
-  console.log('[boot] profile loaded:', profile);
-  booting = false;
+// Boot
+async function boot(user){
+  CU=user;
+  const {data:p,error:e1}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();
+  if(e1){toast('Erro: '+e1.message,'err');return;}
+  if(!p){
+    const nome=(user.user_metadata?.nome)||user.email.split('@')[0];
+    const cont=(user.user_metadata?.contato)||'';
+    const {error:e2}=await db.from('profiles').insert({id:user.id,nome,contato:cont,role:'cliente'});
+    if(e2){toast('Erro ao criar perfil: '+e2.message,'err');return;}
+    const {data:p2}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();
+    if(!p2){toast('Perfil não encontrado','err');return;}
+    profile=p2;
+  } else {profile=p;}
   buildUI();
   await loadAll();
   setupRT();
 }
 
-function buildUI() {
-  const r = profile.role;
-  // Header
-  g('hdr-nome').textContent = profile.nome || '—';
-  g('hdr-role').textContent = roleLabel(r);
+// Icons
+function iH(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>';}
+function iCp(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>';}
+function iC(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>';}
+function iU(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';}
+function iD(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>';}
+function iW(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>';}
+function iSt(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';}
+function iSet(){return'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>';}
 
-  // Nav items
-  const navBase = [
-    { id:'servicos', lbl:'Serviços',   ico:icoWrench() },
-    { id:'perfil',   lbl:'Perfil',     ico:icoUser()   },
-  ];
-  let nav = [];
-  if (r === 'cliente') {
-    nav = [
-      { id:'home',    lbl:'Início',      ico:icoHome()    },
-      { id:'agendar', lbl:'Agendar',     ico:icoCalPlus() },
-      { id:'agenda',  lbl:'Minha Agenda',ico:icoCal()     },
-      ...navBase,
-    ];
-  } else if (r === 'funcionario') {
-    nav = [
-      { id:'painel',  lbl:'Painel',      ico:icoDash()    },
-      ...navBase,
-    ];
-  } else if (r === 'admin') {
-    nav = [
-      { id:'painel',  lbl:'Painel',      ico:icoDash()    },
-      ...navBase,
-      { id:'superadmin', lbl:'Admin',    ico:icoSettings() },
-    ];
-  } else { // superadmin
-    nav = [
-      { id:'painel',     lbl:'Painel',      ico:icoDash()     },
-      ...navBase,
-      { id:'superadmin', lbl:'Super Admin', ico:icoStar()     },
-    ];
-  }
-
-  const first = nav[0].id;
-  const sbHtml = nav.map(n =>
-    `<div class="sb-item${n.id===first?' on':''}" id="sb-${n.id}" onclick="goTab('${n.id}')">${n.ico}<span>${n.lbl}</span></div>`
-  ).join('');
-  g('sb-nav').innerHTML = sbHtml;
-
-  const tabHtml = nav.map(n =>
-    `<div class="tab${n.id===first?' on':''}" id="tab-${n.id}" onclick="goTab('${n.id}')">${n.ico}<span>${n.lbl}</span></div>`
-  ).join('');
-  g('tabs').innerHTML = tabHtml;
-
-  // Mostra primeira page
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  const fp = g(`pg-${first}`); if(fp) fp.classList.add('on');
-
+// Build UI
+function buildUI(){
+  const r=profile.role;
+  g('hun').textContent=profile.nome||'—';
+  g('hur').textContent=rl(r);
+  const base=[{id:'servicos',l:'Serviços',i:iW()},{id:'perfil',l:'Perfil',i:iU()}];
+  let nav=[];
+  if(r==='cliente') nav=[{id:'home',l:'Início',i:iH()},{id:'agendar',l:'Agendar',i:iCp()},{id:'agenda',l:'Minha Agenda',i:iC()},...base];
+  else if(r==='funcionario') nav=[{id:'painel',l:'Painel',i:iD()},...base];
+  else if(r==='admin') nav=[{id:'painel',l:'Painel',i:iD()},...base,{id:'sa',l:'Admin',i:iSet()}];
+  else nav=[{id:'painel',l:'Painel',i:iD()},...base,{id:'sa',l:'Super Admin',i:iSt()}];
+  const first=nav[0].id;
+  g('sbn').innerHTML=nav.map(n=>`<div class="sb-item${n.id===first?' on':''}" id="sb-${n.id}" onclick="goTab('${n.id}')">${n.i}<span>${n.l}</span></div>`).join('');
+  g('tabs').innerHTML=nav.map(n=>`<div class="tab${n.id===first?' on':''}" id="tab-${n.id}" onclick="goTab('${n.id}')">${n.i}<span>${n.l}</span></div>`).join('');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const fp=g('pg-'+first); if(fp)fp.classList.add('on');
   syncProfile();
 }
 
-function syncProfile() {
-  if (!profile) return;
-  const ini = (profile.nome||'?').charAt(0).toUpperCase();
-  g('pf-ava').textContent = ini;
-  g('pf-nome').textContent = profile.nome || '-';
-  g('pf-email').textContent = CU?.email || '-';
-  g('pf-email2').textContent = CU?.email || '-';
-  g('pf-contato').textContent = profile.contato || '-';
-  g('pf-role').textContent = roleLabel(profile.role);
-  g('pf-badge').innerHTML = `<span class="rbadge ${profile.role}">${roleLabel(profile.role)}</span>`;
+function syncProfile(){
+  if(!profile)return;
+  g('pava').textContent=(profile.nome||'?')[0].toUpperCase();
+  g('pnome').textContent=profile.nome||'-';
+  g('pemail').textContent=CU?.email||'-';
+  g('pemail2').textContent=CU?.email||'-';
+  g('pcont').textContent=profile.contato||'-';
+  g('prole').textContent=rl(profile.role);
+  g('pbadge').innerHTML=`<span class="rb ${profile.role}">${rl(profile.role)}</span>`;
 }
 
-/* ═══════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════ */
-function goTab(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.sb-item, .tab').forEach(t => t.classList.remove('on'));
-  const pg = g(`pg-${name}`), sb = g(`sb-${name}`), tb = g(`tab-${name}`);
-  if(pg) pg.classList.add('on');
-  if(sb) sb.classList.add('on');
-  if(tb) tb.classList.add('on');
-  if(name==='agendar') initAgendar();
-  if(name==='agenda') renderAgenda();
-  if(name==='servicos') renderServicos();
-  if(name==='painel') renderPainel();
-  if(name==='superadmin') renderSA();
-  if(name==='home') renderHome();
+// Navigation
+function goTab(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item,.tab').forEach(t=>t.classList.remove('on'));
+  const pg=g('pg-'+name),sb=g('sb-'+name),tb=g('tab-'+name);
+  if(pg)pg.classList.add('on');
+  if(sb)sb.classList.add('on');
+  if(tb)tb.classList.add('on');
+  if(name==='home')renderHome();
+  if(name==='agendar')initAgendar();
+  if(name==='agenda')renderAgenda();
+  if(name==='servicos')renderSvc();
+  if(name==='painel')renderPainel();
+  if(name==='sa')renderSA();
 }
 
-/* ═══════════════════════════════════════════════════
-   MODAL
-═══════════════════════════════════════════════════ */
-function showModal(title, sub, onOk, body='', okTxt='Confirmar') {
-  g('m-title').textContent=title; g('m-sub').textContent=sub;
-  g('m-body').innerHTML=body; g('m-ok').textContent=okTxt; g('m-ok').disabled=false;
-  g('modal-wrap').classList.add('on');
-  g('m-ok').onclick = async () => {
-    g('m-ok').disabled=true; g('m-ok').textContent='Aguarde...';
-    const r = await onOk(); if(r!==false) closeModal();
+// Modal
+function showModal(title,sub,onOk,body='',okTxt='Confirmar'){
+  g('mt').textContent=title; g('ms').textContent=sub;
+  g('mb').innerHTML=body; g('mok').textContent=okTxt; g('mok').disabled=false;
+  g('mw').classList.add('on');
+  g('mok').onclick=async()=>{
+    g('mok').disabled=true; g('mok').textContent='Aguarde...';
+    const r=await onOk(); if(r!==false)closeModal();
   };
 }
-function closeModal() { g('modal-wrap').classList.remove('on'); }
-function closeMBg(e) { if(e.target===g('modal-wrap')) closeModal(); }
+function closeModal(){g('mw').classList.remove('on');}
 
-/* ═══════════════════════════════════════════════════
-   DATA LOADING
-═══════════════════════════════════════════════════ */
-async function loadAll() {
-  if(profile.role==='cliente') { await loadMyAppts(); renderHome(); }
-  else { await loadPainelAppts(); renderPainel(); }
-  await loadServicos();
-  if(profile.role==='superadmin'||profile.role==='admin') loadSAData();
-}
-
-async function loadMyAppts() {
-  const {data, error} = await db.from('appointments')
-    .select('*')
-    .eq('user_id', CU.id)
-    .order('horario', {ascending: true});
-  if (error) console.error('[loadMyAppts]', error);
-  myAppts = data || [];
-}
-
-// Cache de perfis para evitar queries repetidas
-const profileCache = {};
-async function getProfile(uid) {
-  if (!uid) return null;
-  if (profileCache[uid]) return profileCache[uid];
-  const {data} = await db.from('profiles').select('id,nome,contato,role').eq('id', uid).maybeSingle();
-  if (data) profileCache[uid] = data;
-  return data;
-}
-
-async function enrichAppts(appts) {
-  // Busca todos os perfis únicos de uma vez
-  const uids = [...new Set([
-    ...appts.map(a => a.user_id).filter(Boolean),
-    ...appts.map(a => a.mecanico_id).filter(Boolean)
-  ])];
-  if (uids.length > 0) {
-    const {data: profs} = await db.from('profiles').select('id,nome,contato,role').in('id', uids);
-    (profs || []).forEach(p => profileCache[p.id] = p);
+// Data
+const pCache={};
+async function enrichA(arr){
+  const ids=[...new Set([...arr.map(a=>a.user_id),...arr.map(a=>a.mecanico_id)].filter(Boolean))];
+  if(ids.length){
+    const {data}=await db.from('profiles').select('id,nome,contato,role').in('id',ids);
+    (data||[]).forEach(p=>pCache[p.id]=p);
   }
-  return appts.map(a => ({
-    ...a,
-    profiles:  profileCache[a.user_id]    || null,
-    mecanico:  profileCache[a.mecanico_id] || null,
-  }));
+  return arr.map(a=>({...a,_user:pCache[a.user_id]||null,_mec:pCache[a.mecanico_id]||null}));
+}
+async function loadAll(){
+  if(profile.role==='cliente'){await loadMyA();renderHome();}
+  else{await loadPainelA();renderPainel();}
+  await loadSvcA();
+  if(profile.role==='admin'||profile.role==='superadmin')loadSAD();
+}
+async function loadMyA(){
+  const {data}=await db.from('appointments').select('*').eq('user_id',CU.id).order('horario');
+  myA=data||[];
+}
+async function loadPainelA(){
+  const ds=localDateStr();
+  const {data}=await db.from('appointments').select('*').gte('horario',ds+' 00:00:00').lte('horario',ds+' 23:59:59').order('horario');
+  painelA=await enrichA(data||[]);
+}
+async function loadSvcA(){
+  const {data}=await db.from('appointments').select('*').order('horario',{ascending:false}).limit(100);
+  svcA=await enrichA(data||[]);
+}
+async function loadSAD(){
+  const {data:u}=await db.from('profiles').select('*').order('created_at',{ascending:false});
+  saU=u||[];
+  const {data:a}=await db.from('appointments').select('*').order('horario',{ascending:false}).limit(200);
+  saA=await enrichA(a||[]);
 }
 
-async function loadPainelAppts() {
-  const ds = new Date().toISOString().split('T')[0];
-  const {data, error} = await db.from('appointments')
-    .select('*')
-    .gte('horario', ds + ' 00:00:00')
-    .lte('horario', ds + ' 23:59:59')
-    .order('horario', {ascending: true});
-  if (error) console.error('[loadPainelAppts]', error);
-  painelAppts = await enrichAppts(data || []);
-}
-
-async function loadServicos() {
-  const {data, error} = await db.from('appointments')
-    .select('*')
-    .order('horario', {ascending: false})
-    .limit(100);
-  if (error) console.error('[loadServicos]', error);
-  servicosData = await enrichAppts(data || []);
-}
-
-/* ═══════════════════════════════════════════════════
-   REALTIME
-═══════════════════════════════════════════════════ */
-function setupRT() {
-  rtSub = db.channel('pitstop-rt')
-    .on('postgres_changes',{event:'*',schema:'public',table:'appointments'}, async () => {
-      await loadAll(); toast('Agenda atualizada','');
+// Realtime
+function setupRT(){
+  rt=db.channel('ps-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'appointments'},async()=>{
+      await loadAll(); toast('Agenda atualizada');
     }).subscribe();
 }
 
-/* ═══════════════════════════════════════════════════
-   HOME
-═══════════════════════════════════════════════════ */
-function renderHome() {
-  const nome = (profile.nome||'Piloto').split(' ')[0];
-  const h = new Date().getHours();
-  const gr = h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
-  g('home-greeting').textContent = `${gr}, ${nome} 👋`;
-  const ativos = myAppts.filter(a=>a.status==='pendente'||a.status==='agendado');
-  const done = myAppts.filter(a=>a.status==='concluido');
-  g('s-pend').textContent = ativos.length;
-  g('s-done').textContent = done.length;
-  const hoje = new Date().toISOString().split('T')[0];
-  const hojeUsed = (servicosData||[]).filter(a=>a.horario?.startsWith(hoje)&&a.status!=='cancelado').length;
-  g('s-vagas').textContent = Math.max(0, HORARIOS.length*MAX_SLOT - hojeUsed);
-  const prox = ativos.find(a=>new Date(a.horario)>=new Date());
-  const w = g('next-wrap');
-  w.innerHTML = prox ? `<div class="next-card" onclick="goTab('agenda')"><div class="next-tag">⚡ Próximo agendamento</div><div class="next-time">${fmtTime(prox.horario)}</div><div class="next-details">${fmtDate(prox.horario)} · ${prox.veiculo} · ${prox.tipo_servico}</div></div>` : '';
+// Home
+function renderHome(){
+  const nome=(profile.nome||'Piloto').split(' ')[0];
+  const h=new Date().getHours();
+  g('hgreet').textContent=(h<12?'Bom dia':h<18?'Boa tarde':'Boa noite')+', '+nome+' 👋';
+  const at=myA.filter(a=>a.status==='pendente'||a.status==='agendado');
+  g('sp').textContent=at.length;
+  g('sd').textContent=myA.filter(a=>a.status==='concluido').length;
+  const td=localDateStr();
+  g('sv').textContent=Math.max(0,HORARIOS.length*MAX_SLOT-(svcA||[]).filter(a=>a.horario?.startsWith(td)&&a.status!=='cancelado').length);
+  const prox=at.find(a=>a.horario>=td);
+  g('nwrap').innerHTML=prox?`<div class="ncard" onclick="goTab('agenda')"><div class="ntag">⚡ Próximo agendamento</div><div class="ntime">${fmtT(prox.horario)}</div><div class="ndet">${fmtD(prox.horario)} · ${prox.veiculo} · ${prox.tipo_servico}</div></div>`:'';
 }
 
-/* ═══════════════════════════════════════════════════
-   AGENDAR
-═══════════════════════════════════════════════════ */
-function selSvc(tipo) {
-  selSvc_val = tipo;
-  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('on'));
-  g(`sc-${tipo}`).classList.add('on');
-  checkBtn();
+// Agendar
+function selSvc(t){
+  selSvc=t;
+  document.querySelectorAll('.svcard').forEach(c=>c.classList.remove('on'));
+  g('sc-'+t).classList.add('on');
+  checkConf();
 }
-function initAgendar() {
-  selSlot = null;
-  selDate = null;
-  buildDateFilter();
-}
+function checkConf(){g('btnconf').disabled=!(selSvc&&selSlot&&selDate&&gv('vinput').trim());}
+g('vinput').addEventListener('input',checkConf);
 
-function getLocalDateStr(offsetDays) {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-function buildDateFilter() {
-  const df = g('date-filter');
-  if (!df) return;
-  df.innerHTML = '';
-
-  for (let i = 0; i < 7; i++) {
-    const iso = getLocalDateStr(i);
-    const d = new Date(iso + 'T12:00:00'); // meio-dia evita ambiguidade de timezone
-    const lbl = i === 0 ? 'Hoje'
-              : i === 1 ? 'Amanhã'
-              : d.toLocaleDateString('pt-BR', {weekday: 'short', day: '2-digit'});
-
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn' + (i === 0 ? ' on' : '');
-    btn.textContent = lbl;
-    btn.dataset.date = iso;
-    btn.onclick = function () {
-      document.querySelectorAll('#date-filter .filter-btn').forEach(b => b.classList.remove('on'));
-      this.classList.add('on');
-      selDate = this.dataset.date;
-      selSlot = null;
-      checkBtn();
-      loadSlots(selDate);
+function initAgendar(){selSvc=null;selSlot=null;selDate=null;buildDF();}
+function buildDF(){
+  const df=g('dfilter'); df.innerHTML='';
+  for(let i=0;i<7;i++){
+    const iso=localDateStr(i);
+    const d=new Date(iso+'T12:00:00');
+    const lbl=i===0?'Hoje':i===1?'Amanhã':d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit'});
+    const btn=document.createElement('button');
+    btn.className='fbtn'+(i===0?' on':'');
+    btn.textContent=lbl;
+    btn.dataset.d=iso;
+    btn.onclick=function(){
+      document.querySelectorAll('#dfilter .fbtn').forEach(b=>b.classList.remove('on'));
+      this.classList.add('on'); selDate=this.dataset.d; selSlot=null; checkConf(); loadSlots(selDate);
     };
     df.appendChild(btn);
-    if (i === 0) {
-      selDate = iso;
-      loadSlots(iso);
-    }
+    if(i===0){selDate=iso; loadSlots(iso);}
   }
 }
-
-async function loadSlots(dateStr) {
-  const sg = g('slot-grid');
-  if (!sg) return;
-
-  sg.innerHTML = '<div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Verificando vagas...</div></div>';
-
-  const {data, error} = await db
-    .from('appointments')
-    .select('horario, status')
-    .gte('horario', dateStr + ' 00:00:00')
-    .lte('horario', dateStr + ' 23:59:59')
-    .neq('status', 'cancelado');
-
-  const sg2 = g('slot-grid');
-  if (!sg2) return;
-
-  if (error) {
-    sg2.innerHTML = `<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-title">Erro</div><div class="empty-sub">${error.message}</div></div>`;
-    return;
-  }
-
-  const counts = {};
-  (data || []).forEach(a => {
-    const k = (a.horario || '').substring(11, 16);
-    if (k) counts[k] = (counts[k] || 0) + 1;
-  });
-
-  const todayStr = getLocalDateStr(0);
-  const isToday = dateStr === todayStr;
-
-  sg2.innerHTML = '';
-  HORARIOS.forEach(h => {
-    const used = counts[h] || 0;
-    const free = MAX_SLOT - used;
-    const full = free <= 0;
-
-    let bc = 'avail', bt = 'Livre';
-    if (full)       { bc = 'full'; bt = 'Lotado'; }
-    else if (used >= 1) { bc = 'one';  bt = `${free} vaga${free > 1 ? 's' : ''}`; }
-
-    const slot = document.createElement('div');
-    slot.className = 'slot' + (full ? ' slot-full' : '');
-    slot.innerHTML = `
-      <div class="slot-time">${h}</div>
-      <div class="slot-info">
-        <div class="slot-lbl">${isToday ? 'Hoje' : 'Disponível'}</div>
-        <div class="vdots">${Array.from({length: MAX_SLOT}, (_, i) =>
-          `<div class="vdot ${i < used ? 'used' : 'free'}"></div>`).join('')}
-        </div>
-      </div>
-      <span class="slot-badge ${bc}">${bt}</span>`;
-
-    if (!full) {
-      slot.onclick = () => {
-        document.querySelectorAll('.slot').forEach(s => s.classList.remove('slot-sel'));
-        slot.classList.add('slot-sel');
-        selSlot = h;
-        checkBtn();
-      };
-    }
+async function loadSlots(ds){
+  const sg=g('slotgrid'); if(!sg)return;
+  sg.innerHTML='<div class="empty"><div class="empty-ico">⏳</div><div class="empty-t">Verificando vagas...</div></div>';
+  const {data,error}=await db.from('appointments').select('horario,status').gte('horario',ds+' 00:00:00').lte('horario',ds+' 23:59:59').neq('status','cancelado');
+  const sg2=g('slotgrid'); if(!sg2)return;
+  if(error){sg2.innerHTML=`<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Erro</div><div class="empty-s">${error.message}</div></div>`;return;}
+  const c={};(data||[]).forEach(a=>{const k=(a.horario||'').substring(11,16);if(k)c[k]=(c[k]||0)+1;});
+  sg2.innerHTML='';
+  const td=localDateStr();
+  HORARIOS.forEach(h=>{
+    const used=c[h]||0,free=MAX_SLOT-used,full=free<=0;
+    let bc='av',bt='Livre';
+    if(full){bc='full';bt='Lotado';}else if(used>=1){bc='one';bt=free+' vaga'+(free>1?'s':'');}
+    const slot=document.createElement('div');
+    slot.className='slot'+(full?' sfull':'');
+    slot.innerHTML=`<div class="slt">${h}</div><div class="sli"><div class="sll">${ds===td?'Hoje':'Disponível'}</div><div class="vdots">${Array.from({length:MAX_SLOT},(_,i)=>`<div class="vdot ${i<used?'u':'f'}"></div>`).join('')}</div></div><span class="sbadge ${bc}">${bt}</span>`;
+    if(!full)slot.onclick=()=>{document.querySelectorAll('.slot').forEach(s=>s.classList.remove('ssel'));slot.classList.add('ssel');selSlot=h;checkConf();};
     sg2.appendChild(slot);
   });
 }
-function checkBtn(){g('btn-confirmar').disabled=!(selSvc_val&&selSlot&&selDate&&v('veiculo-input').trim());}
-g('veiculo-input').addEventListener('input',checkBtn);
 async function confirmar(){
-  if(!selSvc_val||!selSlot||!selDate) return;
-  const veiculo=v('veiculo-input').trim(), obs=v('obs-input').trim();
-  if(!veiculo) return toast('Informe o veículo','err');
-  const ativos=myAppts.filter(a=>a.status==='pendente'||a.status==='agendado');
-  if(ativos.length>=1) return showModal('Limite atingido','Você já tem um agendamento ativo. Cancele ou aguarde ser concluído antes de criar outro.',()=>{},'','OK');
-  // Salva horario como string local "YYYY-MM-DD HH:MM:00" — sem conversão UTC
-  const horarioStr = `${selDate} ${selSlot}:00`;
-  showModal('Confirmar Agendamento',`${selSvc_val} — ${veiculo}`,async()=>{
-    // Verifica vagas no mesmo slot
-    const {data:ex} = await db.from('appointments')
-      .select('id')
-      .eq('horario', horarioStr)
-      .neq('status','cancelado');
-    if((ex||[]).length>=MAX_SLOT){toast('Horário lotado! Escolha outro.','err');return false;}
-    const {error} = await db.from('appointments').insert({
-      user_id: CU.id,
-      tipo_servico: selSvc_val,
-      horario: horarioStr,
-      veiculo, observacoes: obs,
-      status: 'pendente'
-    });
+  if(!selSvc||!selSlot||!selDate)return;
+  const vei=gv('vinput').trim(),obs=gv('oinput').trim();
+  if(!vei)return toast('Informe o veículo','err');
+  if(myA.filter(a=>a.status==='pendente'||a.status==='agendado').length>=1)
+    return showModal('Limite atingido','Você já tem 1 agendamento ativo.',()=>{},'','OK');
+  const horStr=selDate+' '+selSlot+':00';
+  showModal('Confirmar Agendamento',selSvc+' — '+vei,async()=>{
+    const {data:ex}=await db.from('appointments').select('id').eq('horario',horStr).neq('status','cancelado');
+    if((ex||[]).length>=MAX_SLOT){toast('Horário lotado!','err');return false;}
+    const {error}=await db.from('appointments').insert({user_id:CU.id,tipo_servico:selSvc,horario:horStr,veiculo:vei,observacoes:obs,status:'pendente'});
     if(error){toast('Erro: '+error.message,'err');return false;}
-    toast('Agendamento realizado! ✅','ok');
-    await loadMyAppts(); renderHome();
-    selSlot=null; selSvc_val=null;
-    document.querySelectorAll('.slot').forEach(s=>s.classList.remove('slot-sel'));
-    document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('on'));
-    g('veiculo-input').value=''; g('obs-input').value=''; g('btn-confirmar').disabled=true;
-    loadSlots(selDate); goTab('agenda');
-  },`<div style="font-size:13px;color:var(--t2);line-height:1.9">🔧 Serviço: <strong style="color:var(--t1)">${selSvc_val}</strong><br>🚗 Veículo: <strong style="color:var(--t1)">${veiculo}</strong><br>📅 ${selDate}<br>⏰ <strong style="color:var(--orange)">${selSlot}</strong>${obs?`<br>💬 ${obs}`:''}</div>`,'Confirmar ✅');
+    toast('Agendado! ✅','ok');
+    await loadMyA(); renderHome();
+    selSlot=null;selSvc=null;
+    document.querySelectorAll('.slot').forEach(s=>s.classList.remove('ssel'));
+    document.querySelectorAll('.svcard').forEach(c=>c.classList.remove('on'));
+    g('vinput').value='';g('oinput').value='';g('btnconf').disabled=true;
+    goTab('agenda');
+  },`<div style="font-size:13px;color:var(--t2);line-height:1.9">🔧 ${selSvc}<br>🚗 ${vei}<br>📅 ${selDate} ⏰ ${selSlot}${obs?'<br>💬 '+obs:''}</div>`,'Confirmar ✅');
 }
 
-/* ═══════════════════════════════════════════════════
-   MINHA AGENDA
-═══════════════════════════════════════════════════ */
-function filtAgenda(s,btn){agendaFilt=s;document.querySelectorAll('#pg-agenda .filter-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderAgenda();}
+// Agenda
+function filtA(s,b){filtAg=s;document.querySelectorAll('#pg-agenda .fbtn').forEach(x=>x.classList.remove('on'));if(b)b.classList.add('on');renderAgenda();}
 function renderAgenda(){
-  const list=g('agenda-list');
-  let appts=[...myAppts].sort((a,b)=>new Date(b.horario)-new Date(a.horario));
-  if(agendaFilt!=='todos') appts=appts.filter(a=>a.status===agendaFilt);
-  if(!appts.length){list.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Nenhum agendamento</div><div class="empty-sub">Seus agendamentos aparecem aqui</div></div>';return;}
-  list.innerHTML=appts.map(a=>{
-    const canCancel=a.status==='pendente'||a.status==='agendado';
-    const mecInfo = a.status==='agendado'?'<div class="appt-row" style="color:var(--info)">✓ Mecânico ciente do seu agendamento</div>':'';
-    return `<div class="appt-card ${a.status}">
-      <div class="appt-hdr"><div class="appt-hora">${fmtTime(a.horario)}</div><span class="status-pill ${a.status}">${a.status}</span></div>
-      <div class="appt-rows">
-        <div class="appt-row"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>${fmtDate(a.horario)}</div>
-        <div class="appt-row"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>Veículo: <strong>${a.veiculo}</strong></div>
-        <div class="appt-row"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>Serviço: <strong>${a.tipo_servico}</strong></div>
-        ${mecInfo}
-        ${a.observacoes?`<div class="appt-row">💬 ${a.observacoes}</div>`:''}
+  const l=g('aglist');
+  let arr=[...myA].sort((a,b)=>b.horario>a.horario?1:-1);
+  if(filtAg!=='todos')arr=arr.filter(a=>a.status===filtAg);
+  if(!arr.length){l.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-t">Nenhum agendamento</div></div>';return;}
+  l.innerHTML=arr.map(a=>{
+    const cc=a.status==='pendente'||a.status==='agendado';
+    return`<div class="acard ${a.status}">
+      <div class="achdr"><div class="achora">${fmtT(a.horario)}</div><span class="spill ${a.status}">${a.status}</span></div>
+      <div class="arows">
+        <div class="arow">📅 ${fmtD(a.horario)}</div>
+        <div class="arow">🚗 Veículo: <strong>${a.veiculo}</strong></div>
+        <div class="arow">🔧 Serviço: <strong>${a.tipo_servico}</strong></div>
+        ${a.status==='agendado'?'<div class="arow" style="color:var(--info)">✓ Mecânico ciente</div>':''}
+        ${a.observacoes?'<div class="arow">💬 '+a.observacoes+'</div>':''}
       </div>
-      ${canCancel?`<div class="appt-acts"><button class="btn-sm btn-cancel" onclick="cancelarAppt('${a.id}')">✕ Cancelar</button></div>`:''}
+      ${cc?`<div class="aacts"><button class="btsm btcancel" onclick="cancelA('${a.id}')">✕ Cancelar</button></div>`:''}
     </div>`;
   }).join('');
 }
-async function cancelarAppt(id){
-  showModal('Cancelar Agendamento','Tem certeza? Esta ação não pode ser desfeita.',async()=>{
-    const {error}=await db.from('appointments').update({status:'cancelado'}).eq('id',id).eq('user_id',CU.id);
-    if(error){toast('Erro ao cancelar','err');return false;}
-    toast('Agendamento cancelado','');
-    await loadMyAppts(); renderAgenda(); renderHome();
+async function cancelA(id){
+  showModal('Cancelar','Tem certeza?',async()=>{
+    const{error}=await db.from('appointments').update({status:'cancelado'}).eq('id',id).eq('user_id',CU.id);
+    if(error){toast('Erro','err');return false;}
+    toast('Cancelado','');await loadMyA();renderAgenda();renderHome();
   },'','Sim, cancelar');
 }
 
-/* ═══════════════════════════════════════════════════
-   SERVIÇOS
-═══════════════════════════════════════════════════ */
-function filtServicos(s,btn){svcFilt=s;document.querySelectorAll('#pg-servicos .filter-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderServicos();}
-function renderServicos(){
-  const list=g('servicos-list'); if(!list) return;
-  let appts=[...servicosData];
-  if(svcFilt!=='todos') appts=appts.filter(a=>a.status===svcFilt);
-  if(!appts.length){list.innerHTML='<div class="empty"><div class="empty-ico">🔧</div><div class="empty-title">Nenhum serviço</div><div class="empty-sub">Os atendimentos da oficina aparecem aqui</div></div>';return;}
-  list.innerHTML=appts.map(a=>{
-    const cn=a.profiles?.nome||'—', mec=a.mecanico?.nome||null;
-    return `<div class="appt-card ${a.status==='agendado'?'agendado':a.status}">
-      <div class="appt-hdr"><div class="appt-hora">${fmtTime(a.horario)}</div><span class="status-pill ${a.status}">${a.status}</span></div>
-      <div class="appt-rows">
-        <div class="appt-row">📅 ${fmtDate(a.horario)}</div>
-        <div class="appt-row">👤 Cliente: <strong>${cn}</strong></div>
-        <div class="appt-row">🚗 Veículo: <strong>${a.veiculo}</strong></div>
-        <div class="appt-row">🔧 Serviço: <strong>${a.tipo_servico}</strong></div>
-        ${mec?`<div class="appt-row" style="color:var(--ok)">✓ Mecânico: <strong>${mec}</strong></div>`:'<div class="appt-row" style="color:var(--t3)">⏳ Aguardando mecânico</div>'}
-        ${a.observacoes?`<div class="appt-row">💬 ${a.observacoes}</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
+// Serviços
+function filtS(s,b){filtSv=s;document.querySelectorAll('#pg-servicos .fbtn').forEach(x=>x.classList.remove('on'));if(b)b.classList.add('on');renderSvc();}
+function renderSvc(){
+  const l=g('svclist');if(!l)return;
+  let arr=[...svcA];
+  if(filtSv!=='todos')arr=arr.filter(a=>a.status===filtSv);
+  if(!arr.length){l.innerHTML='<div class="empty"><div class="empty-ico">🔧</div><div class="empty-t">Nenhum serviço</div></div>';return;}
+  l.innerHTML=arr.map(a=>`<div class="acard ${a.status}">
+    <div class="achdr"><div class="achora">${fmtT(a.horario)}</div><span class="spill ${a.status}">${a.status}</span></div>
+    <div class="arows">
+      <div class="arow">📅 ${fmtD(a.horario)}</div>
+      <div class="arow">👤 Cliente: <strong>${a._user?.nome||'?'}</strong></div>
+      <div class="arow">🚗 <strong>${a.veiculo}</strong> · 🔧 ${a.tipo_servico}</div>
+      ${a._mec?`<div class="arow" style="color:var(--ok)">✓ Mecânico: <strong>${a._mec.nome}</strong></div>`:'<div class="arow" style="color:var(--t3)">⏳ Sem mecânico</div>'}
+      ${a.observacoes?'<div class="arow">💬 '+a.observacoes+'</div>':''}
+    </div>
+  </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════════════
-   PAINEL (staff)
-═══════════════════════════════════════════════════ */
-function filtPainel(s,btn){painelFilt=s;document.querySelectorAll('#pg-painel .filter-btn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderPainel();}
+// Painel
+function filtP(s,b){filtPn=s;document.querySelectorAll('#pg-painel .fbtn').forEach(x=>x.classList.remove('on'));if(b)b.classList.add('on');renderPainel();}
 function renderPainel(){
-  const hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-  g('painel-sub').textContent=`Hoje — ${hoje}`;
-  const all=painelAppts;
-  g('p-total').textContent=all.length;
-  g('p-pend').textContent=all.filter(a=>a.status==='pendente'||a.status==='agendado').length;
-  g('p-done').textContent=all.filter(a=>a.status==='concluido').length;
-  let appts=painelFilt==='todos'?[...all]:all.filter(a=>a.tipo_servico===painelFilt);
-  if(!appts.length){g('painel-list').innerHTML='<div class="empty"><div class="empty-ico">🏁</div><div class="empty-title">Agenda vazia</div><div class="empty-sub">Nenhum agendamento para hoje</div></div>';return;}
+  g('psub').textContent='Hoje — '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+  const all=painelA;
+  g('pt').textContent=all.length;
+  g('pp').textContent=all.filter(a=>a.status==='pendente'||a.status==='agendado').length;
+  g('pc').textContent=all.filter(a=>a.status==='concluido').length;
+  let arr=filtPn==='todos'?[...all]:all.filter(a=>a.tipo_servico===filtPn);
+  if(!arr.length){g('plist').innerHTML='<div class="empty"><div class="empty-ico">🏁</div><div class="empty-t">Agenda vazia</div></div>';return;}
   const grupos={};
-  appts.forEach(a=>{const k=a.horario.substring(11,16);if(!grupos[k])grupos[k]=[];grupos[k].push(a);});
-  g('painel-list').innerHTML=Object.keys(grupos).sort().map(hora=>{
-    const gr=grupos[hora], cnt=gr.length;
-    const pc=cnt>=MAX_SLOT?'full':cnt===1?'partial':'empty';
-    const pt=cnt>=MAX_SLOT?'Lotado':`${cnt}/${MAX_SLOT}`;
-    return `<div class="day-sec"><div class="day-hdr"><div class="day-hora">${hora}</div><div class="day-info"><span>${cnt}</span>/${MAX_SLOT} veículos</div><span class="count-pill ${pc}">${pt}</span></div>${gr.map(a=>staffCard(a)).join('')}</div>`;
+  arr.forEach(a=>{const k=a.horario.substring(11,16);if(!grupos[k])grupos[k]=[];grupos[k].push(a);});
+  g('plist').innerHTML=Object.keys(grupos).sort().map(hora=>{
+    const gr=grupos[hora],cnt=gr.length;
+    const pc=cnt>=MAX_SLOT?'full':cnt===1?'partial':'ok';
+    return`<div class="dsec"><div class="dhdr"><div class="dhora">${hora}</div><div class="dinfo"><span>${cnt}</span>/${MAX_SLOT}</div><span class="cpill ${pc}">${cnt>=MAX_SLOT?'Lotado':cnt+'/'+MAX_SLOT}</span></div>${gr.map(a=>staffCard(a)).join('')}</div>`;
   }).join('');
 }
 function staffCard(a){
-  const isPend=a.status==='pendente', isAgend=a.status==='agendado';
-  const cn=a.profiles?.nome||'?', cc=a.profiles?.contato||'-', mn=a.mecanico?.nome||null;
-  return `<div class="appt-card ${a.status==='agendado'?'agendado':a.status}">
-    <div class="appt-hdr"><div style="font-family:var(--font-c);font-size:15px;font-weight:800;color:var(--t1)">${cn}</div><span class="status-pill ${a.status}">${a.status}</span></div>
-    <div class="appt-rows">
-      <div class="appt-row">📞 ${cc}</div>
-      <div class="appt-row">🚗 Veículo: <strong>${a.veiculo}</strong></div>
-      <div class="appt-row">🔧 Serviço: <strong>${a.tipo_servico}</strong></div>
-      ${mn?`<div class="appt-row" style="color:var(--ok)">✓ Mecânico: <strong>${mn}</strong></div>`:''}
-      ${a.observacoes?`<div class="appt-row">💬 ${a.observacoes}</div>`:''}
+  const ip=a.status==='pendente',ia=a.status==='agendado';
+  return`<div class="acard ${a.status}">
+    <div class="achdr"><div style="font-family:var(--fc);font-size:15px;font-weight:800">${a._user?.nome||'?'}</div><span class="spill ${a.status}">${a.status}</span></div>
+    <div class="arows">
+      <div class="arow">📞 ${a._user?.contato||'-'}</div>
+      <div class="arow">🚗 <strong>${a.veiculo}</strong> · 🔧 ${a.tipo_servico}</div>
+      ${a._mec?`<div class="arow" style="color:var(--ok)">✓ ${a._mec.nome}</div>`:''}
+      ${a.observacoes?'<div class="arow">💬 '+a.observacoes+'</div>':''}
     </div>
-    ${(isPend||isAgend)?`<div class="appt-acts">
-      ${isPend?`<button class="btn-sm btn-info" onclick="aceitarAppt('${a.id}')">✓ Aceitar</button>`:''}
-      <button class="btn-sm btn-ok" onclick="updateAppt('${a.id}','concluido')">✔ Concluir</button>
-      <button class="btn-sm btn-cancel" onclick="updateAppt('${a.id}','cancelado')">✕ Cancelar</button>
+    ${(ip||ia)?`<div class="aacts">
+      ${ip?`<button class="btsm btinfo" onclick="aceitarA('${a.id}')">✓ Aceitar</button>`:''}
+      <button class="btsm btok" onclick="updA('${a.id}','concluido')">✔ Concluir</button>
+      <button class="btsm btcancel" onclick="updA('${a.id}','cancelado')">✕ Cancelar</button>
     </div>`:''}
   </div>`;
 }
-async function aceitarAppt(id){
-  showModal('Aceitar Serviço','Confirma que está ciente e irá atender este cliente?',async()=>{
-    const {error}=await db.from('appointments').update({status:'agendado',mecanico_id:CU.id}).eq('id',id);
-    if(error){toast('Erro: '+error.message,'err');return false;}
-    toast('Serviço aceito! ✅','ok'); await loadPainelAppts(); renderPainel();
-  },'','Sim, aceitar');
-}
-async function updateAppt(id,status){
-  const lbl=status==='concluido'?'Concluir':'Cancelar';
-  showModal(`${lbl} Atendimento`,'Confirmar esta ação?',async()=>{
-    const {error}=await db.from('appointments').update({status}).eq('id',id);
+async function aceitarA(id){
+  showModal('Aceitar Serviço','Confirma que irá atender?',async()=>{
+    const{error}=await db.from('appointments').update({status:'agendado',mecanico_id:CU.id}).eq('id',id);
     if(error){toast('Erro','err');return false;}
-    toast(`${lbl}do!`,'ok'); await loadPainelAppts(); renderPainel(); await loadServicos(); renderServicos();
-  },'',`Sim, ${lbl.toLowerCase()}`);
+    toast('Aceito! ✅','ok');await loadPainelA();renderPainel();
+  },'','Sim');
+}
+async function updA(id,st){
+  showModal(st==='concluido'?'Concluir':'Cancelar','Confirmar?',async()=>{
+    const{error}=await db.from('appointments').update({status:st}).eq('id',id);
+    if(error){toast('Erro','err');return false;}
+    toast('Atualizado!','ok');await loadPainelA();renderPainel();await loadSvcA();
+  },'','Sim');
 }
 
-/* ═══════════════════════════════════════════════════
-   SUPERADMIN
-═══════════════════════════════════════════════════ */
-let saUsers=[], saAppts=[], saTab_cur='usuarios';
-async function loadSAData(){
-  const {data:u} = await db.from('profiles').select('*').order('created_at',{ascending:false});
-  saUsers = u || [];
-  const {data:a} = await db.from('appointments').select('*').order('horario',{ascending:false}).limit(200);
-  saAppts = await enrichAppts(a || []);
-}
-function saTab(tab,btn){
-  saTab_cur=tab;
-  document.querySelectorAll('#pg-superadmin .filter-btn').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  g('sa-usuarios').style.display=tab==='usuarios'?'block':'none';
-  g('sa-agendamentos').style.display=tab==='agendamentos'?'block':'none';
-  if(tab==='usuarios') renderSAUsers();
-  else renderSAAppts();
+// Super Admin
+function saTab(t,b){
+  saTabCur=t;
+  document.querySelectorAll('#pg-sa .fbtn').forEach(x=>x.classList.remove('on'));if(b)b.classList.add('on');
+  g('sa-users').style.display=t==='users'?'block':'none';
+  g('sa-appts').style.display=t==='appts'?'block':'none';
+  if(t==='users')renderSAU();else renderSAA();
 }
 async function renderSA(){
-  await loadSAData();
-  g('sa-total-users').textContent=saUsers.length;
-  g('sa-total-appts').textContent=saAppts.length;
-  g('sa-pend').textContent=saAppts.filter(a=>a.status==='pendente'||a.status==='agendado').length;
-  g('sa-done').textContent=saAppts.filter(a=>a.status==='concluido').length;
-  if(saTab_cur==='usuarios') renderSAUsers(); else renderSAAppts();
+  await loadSAD();
+  g('sa-u').textContent=saU.length;
+  g('sa-a').textContent=saA.length;
+  g('sa-p').textContent=saA.filter(a=>a.status==='pendente'||a.status==='agendado').length;
+  g('sa-c').textContent=saA.filter(a=>a.status==='concluido').length;
+  if(saTabCur==='users')renderSAU();else renderSAA();
 }
-function renderSAUsers(){
-  const list=g('sa-users-list'); if(!list) return;
-  if(!saUsers.length){list.innerHTML='<div class="empty"><div class="empty-title">Nenhum usuário</div></div>';return;}
-  list.innerHTML=saUsers.map(u=>`
-    <div class="user-row">
-      <div class="user-ava">${(u.nome||'?').charAt(0).toUpperCase()}</div>
-      <div class="user-info">
-        <div class="user-nome">${u.nome||'—'}</div>
-        <div class="user-sub">${u.contato||'sem contato'}</div>
-      </div>
-      <select class="role-sel" onchange="changeRole('${u.id}',this.value)">
-        <option value="cliente" ${u.role==='cliente'?'selected':''}>Cliente</option>
-        <option value="funcionario" ${u.role==='funcionario'?'selected':''}>Funcionário</option>
-        <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-        <option value="superadmin" ${u.role==='superadmin'?'selected':''}>Super Admin</option>
-      </select>
-    </div>`).join('');
+function renderSAU(){
+  const l=g('sa-ulist');if(!l)return;
+  if(!saU.length){l.innerHTML='<div class="empty"><div class="empty-t">Sem usuários</div></div>';return;}
+  l.innerHTML=saU.map(u=>`<div class="urow">
+    <div class="uava">${(u.nome||'?')[0].toUpperCase()}</div>
+    <div class="uinfo"><div class="unome">${u.nome||'—'}</div><div class="usub">${u.contato||'sem contato'}</div></div>
+    <select class="rsel" onchange="changeRole('${u.id}',this.value)">
+      <option value="cliente" ${u.role==='cliente'?'selected':''}>Cliente</option>
+      <option value="funcionario" ${u.role==='funcionario'?'selected':''}>Funcionário</option>
+      <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+      <option value="superadmin" ${u.role==='superadmin'?'selected':''}>Super Admin</option>
+    </select>
+  </div>`).join('');
 }
-function renderSAAppts(){
-  const list=g('sa-appts-list'); if(!list) return;
-  if(!saAppts.length){list.innerHTML='<div class="empty"><div class="empty-title">Sem agendamentos</div></div>';return;}
-  list.innerHTML=saAppts.map(a=>`
-    <div class="appt-card ${a.status==='agendado'?'agendado':a.status}" style="margin-bottom:.6rem">
-      <div class="appt-hdr"><div class="appt-hora">${fmtTime(a.horario)}</div><span class="status-pill ${a.status}">${a.status}</span></div>
-      <div class="appt-rows">
-        <div class="appt-row">📅 ${fmtShort(a.horario)}</div>
-        <div class="appt-row">👤 ${a.profiles?.nome||'?'} → 🚗 ${a.veiculo} [${a.tipo_servico}]</div>
-        ${a.mecanico?.nome?`<div class="appt-row" style="color:var(--ok)">✓ ${a.mecanico.nome}</div>`:''}
-      </div>
-    </div>`).join('');
+function renderSAA(){
+  const l=g('sa-alist');if(!l)return;
+  if(!saA.length){l.innerHTML='<div class="empty"><div class="empty-t">Sem agendamentos</div></div>';return;}
+  l.innerHTML=saA.map(a=>`<div class="acard ${a.status}" style="margin-bottom:.55rem">
+    <div class="achdr"><div class="achora">${fmtT(a.horario)}</div><span class="spill ${a.status}">${a.status}</span></div>
+    <div class="arows">
+      <div class="arow">📅 ${a.horario?.substring(0,16)||''}</div>
+      <div class="arow">👤 ${a._user?.nome||'?'} · 🚗 ${a.veiculo} [${a.tipo_servico}]</div>
+      ${a._mec?`<div class="arow" style="color:var(--ok)">✓ ${a._mec.nome}</div>`:''}
+    </div>
+  </div>`).join('');
 }
 async function changeRole(uid,role){
-  const {error}=await db.from('profiles').update({role}).eq('id',uid);
-  if(error) toast('Erro ao alterar role','err');
-  else{toast(`Role atualizado: ${roleLabel(role)}`,'ok');await loadSAData();renderSAUsers();}
+  const{error}=await db.from('profiles').update({role}).eq('id',uid);
+  if(error)toast('Erro','err');else{toast('Role: '+rl(role),'ok');await loadSAD();renderSAU();}
 }
 
-/* ═══════════════════════════════════════════════════
-   SERVICE WORKER
-═══════════════════════════════════════════════════ */
+// SW
 function swSetup(){
-  if(!('serviceWorker'in navigator)) return;
-  if('caches'in window) caches.keys().then(keys=>keys.forEach(k=>{if(!k.includes('v1.0.6'))caches.delete(k);}));
-  navigator.serviceWorker.register('./sw.js?v=1.0.1').then(reg=>{
-    reg.update();
-    if(reg.waiting){reg.waiting.postMessage('SKIP_WAITING');}
-    reg.addEventListener('updatefound',()=>{
-      const nw=reg.installing;
-      nw.addEventListener('statechange',()=>{if(nw.state==='installed'&&navigator.serviceWorker.controller)nw.postMessage('SKIP_WAITING');});
-    });
-  }).catch(e=>console.warn('[SW]',e));
-  let refreshing=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;window.location.reload();}});
+  if(!('serviceWorker'in navigator))return;
+  if('caches'in window)caches.keys().then(k=>k.forEach(c=>{if(!c.includes('v2.0.0'))caches.delete(c);}));
+  navigator.serviceWorker.register('./sw.js?v=2.0.0').then(r=>{
+    r.update();
+    r.addEventListener('updatefound',()=>{const n=r.installing;n.addEventListener('statechange',()=>{if(n.state==='installed'&&navigator.serviceWorker.controller)n.postMessage('SKIP_WAITING');});});
+  }).catch(()=>{});
+  let ref=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!ref){ref=true;location.reload();}});
 }
-function applyUpdate(){caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c)))).then(()=>location.reload(true));}
 
-/* ═══════════════════════════════════════════════════
-   MAIN
-═══════════════════════════════════════════════════ */
+// Main
 (async()=>{
   swSetup();
-  const ld=g('ld'), auth=g('auth'), app=g('app');
-
-  db.auth.onAuthStateChange(async(event,session)=>{
-    console.log('[Auth]', event, !!session, 'booting:', booting);
-    if((event==='SIGNED_IN'||event==='INITIAL_SESSION')&&session){
+  const ld=g('ld'),auth=g('auth'),app=g('app');
+  db.auth.onAuthStateChange(async(ev,sess)=>{
+    if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&sess){
       auth.style.display='none'; app.style.display='flex';
-      profile = null; booting = false;
-      await boot(session.user);
+      await boot(sess.user);
       ld.classList.add('out');
-    } else if(event==='TOKEN_REFRESHED'&&session){
-      // Apenas atualiza o user, não re-boota
-      CU = session.user;
-    } else if(event==='SIGNED_OUT'||(event==='INITIAL_SESSION'&&!session)){
-      CU=null; profile=null; booting=false;
+    } else if(ev==='SIGNED_OUT'||(ev==='INITIAL_SESSION'&&!sess)){
+      CU=null;profile=null;
       app.style.display='none'; auth.style.display='flex';
       ld.classList.add('out');
-      g('form-login').classList.add('on'); g('form-register').classList.remove('on');
+      g('fl').classList.add('on'); g('fr').classList.remove('on');
     }
   });
-
-  // Fallback 4s
-  setTimeout(()=>{if(!ld.classList.contains('out')){ld.classList.add('out');auth.style.display='flex';}},4000);
+  setTimeout(()=>{if(!ld.classList.contains('out')){ld.classList.add('out');auth.style.display='flex';}},5000);
 })();
 </script>
 </body>
