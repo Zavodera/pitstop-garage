@@ -222,38 +222,47 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
 /* SIDEBAR — desktop only */
 .sidebar {
-  width: 220px; flex-shrink: 0;
+  width: 200px; flex-shrink: 0;
   background: var(--bg-card); border-right: 1px solid var(--border-m);
-  display: flex; flex-direction: column; padding: 1.25rem .75rem;
+  display: flex; flex-direction: column; padding: 1rem .75rem;
   overflow-y: auto;
 }
-.sidebar-nav { display: flex; flex-direction: column; gap: .25rem; flex: 1; }
+.sidebar-nav { display: flex; flex-direction: column; gap: .2rem; flex: 1; }
 .sidebar-item {
   display: flex; align-items: center; gap: 10px;
-  padding: .65rem .85rem; border-radius: var(--r-md);
+  padding: .7rem .9rem; border-radius: var(--r-md);
   cursor: pointer; transition: all .18s; color: var(--text-2);
   font-family: var(--font-cond); font-size: 14px; font-weight: 700;
   letter-spacing: .5px; text-transform: uppercase;
-  border: 1px solid transparent;
+  border: 1px solid transparent; white-space: nowrap;
 }
 .sidebar-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+.sidebar-item span { display: inline; }
 .sidebar-item:hover { background: var(--bg-in); color: var(--text-1); }
 .sidebar-item.on { background: var(--orange-pale); color: var(--orange); border-color: rgba(249,115,22,.2); }
 .sidebar-divider { height: 1px; background: var(--border-subtle); margin: .75rem 0; }
 .sidebar-logout {
   display: flex; align-items: center; gap: 10px;
-  padding: .65rem .85rem; border-radius: var(--r-md);
+  padding: .7rem .9rem; border-radius: var(--r-md);
   cursor: pointer; transition: all .18s; color: var(--text-3);
   font-family: var(--font-cond); font-size: 13px; font-weight: 700;
-  letter-spacing: .5px; text-transform: uppercase;
+  letter-spacing: .5px; text-transform: uppercase; white-space: nowrap;
 }
 .sidebar-logout svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .sidebar-logout:hover { color: var(--err); }
 
 /* PAGES */
-.pages { flex: 1; overflow: hidden; position: relative; }
-.page { position: absolute; inset: 0; overflow-y: auto; padding: 1.5rem 2rem; display: none; max-width: 860px; }
+.pages { flex: 1; overflow: hidden; position: relative; background: var(--bg-s); }
+.page {
+  position: absolute; inset: 0; overflow-y: auto;
+  padding: 2rem 2.5rem; display: none;
+}
 .page.on { display: block; }
+/* Conteúdo centralizado com largura máxima */
+.page-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
 
 /* TABS — mobile only */
 .tabs { height: var(--tab-h); background: var(--bg-card); border-top: 1px solid var(--border-m); display: flex; align-items: stretch; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
@@ -262,16 +271,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .tab.on::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--orange); border-radius: 0 0 4px 4px; }
 .tab svg { width: 22px; height: 22px; }
 
-/* RESPONSIVE: mobile = bottom tabs, desktop = sidebar */
+/* RESPONSIVE */
 @media (min-width: 768px) {
   .tabs { display: none; }
   .sidebar { display: flex; }
-  .page { padding-bottom: 1.5rem; }
+  .page { padding-bottom: 2rem; }
 }
 @media (max-width: 767px) {
   .sidebar { display: none; }
   .app-body { flex-direction: column; }
-  .page { padding: 1.25rem; padding-bottom: calc(var(--tab-h) + 1rem); max-width: 100%; }
+  .page { padding: 1.25rem; padding-bottom: calc(var(--tab-h) + 1rem); }
+  .page-inner { max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -600,109 +610,60 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   <div class="pages">
 
     <!-- ── PAGE: HOME (cliente) ──────────────────────── -->
-    <div class="page on" id="pg-home">
+    <div class="page on" id="pg-home"><div class="page-inner">
       <div class="pg-title" id="home-greeting">Olá 👋</div>
       <div class="pg-sub">Pronto para agendar?</div>
-
-      <!-- Próximo agendamento -->
       <div id="next-appt-wrap"></div>
-
-      <!-- Stats rápidas -->
       <div class="stats-grid" id="home-stats">
-        <div class="stat-card">
-          <div class="stat-val" id="stat-pending">-</div>
-          <div class="stat-lbl">Pendentes</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="stat-done">-</div>
-          <div class="stat-lbl">Concluídos</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="stat-vagas">-</div>
-          <div class="stat-lbl">Vagas Hoje</div>
-        </div>
+        <div class="stat-card"><div class="stat-val" id="stat-pending">-</div><div class="stat-lbl">Pendentes</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-done">-</div><div class="stat-lbl">Concluídos</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-vagas">-</div><div class="stat-lbl">Vagas Hoje</div></div>
       </div>
-
-      <!-- Aviso -->
       <div class="notice">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
         <p>Cada horário suporta <strong>2 veículos</strong>. Você pode ter no máximo <strong>2 agendamentos ativos</strong>.</p>
       </div>
-
       <div class="sg-title">Ações rápidas</div>
       <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agendar')">
-        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0">
-          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Novo Agendamento</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Reserve seu horário na oficina</div>
-        </div>
+        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg></div>
+        <div style="flex:1"><div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Novo Agendamento</div><div style="font-size:12px;color:var(--text-2);margin-top:2px">Reserve seu horário na oficina</div></div>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
       <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agenda')">
-        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0;background:var(--ok-bg)">
-          <svg viewBox="0 0 24 24" style="fill:var(--ok)"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Ver e gerenciar seus agendamentos</div>
-        </div>
+        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0;background:var(--ok-bg)"><svg viewBox="0 0 24 24" style="fill:var(--ok)"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg></div>
+        <div style="flex:1"><div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div><div style="font-size:12px;color:var(--text-2);margin-top:2px">Ver e gerenciar seus agendamentos</div></div>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-    </div>
+    </div></div>
 
     <!-- ── PAGE: AGENDAR ─────────────────────────────── -->
-    <div class="page" id="pg-agendar">
+    <div class="page" id="pg-agendar"><div class="page-inner">
       <div class="pg-title">Agendar</div>
       <div class="pg-sub">Escolha o serviço e horário</div>
-
-      <!-- Step 1: Tipo -->
       <div class="card-title">1. Tipo de Serviço</div>
       <div class="service-grid">
         <div class="service-card" id="sc-reparo" onclick="selectService('reparo')">
-          <div class="sc-icon">
-            <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
-          </div>
-          <div class="sc-name">Reparo</div>
-          <div class="sc-desc">Consertos e manutenção</div>
+          <div class="sc-icon"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div>
+          <div class="sc-name">Reparo</div><div class="sc-desc">Consertos e manutenção</div>
         </div>
         <div class="service-card" id="sc-tunning" onclick="selectService('tunning')">
-          <div class="sc-icon">
-            <svg viewBox="0 0 24 24"><path d="M13.5 2c-5.629 0-10.212 4.436-10.475 10h-3.025l4 5.917 4-5.917h-2.485c.254-4.989 4.396-8.974 9.485-8.974 5.238 0 9.5 4.262 9.5 9.5 0 5.173-4.186 9.385-9.342 9.494l.002 2.008c6.396-.109 11.34-5.327 11.34-11.502 0-6.351-5.149-11.526-11.5-11.526z"/></svg>
-          </div>
-          <div class="sc-name">Tunning</div>
-          <div class="sc-desc">Modificações e upgrades</div>
+          <div class="sc-icon"><svg viewBox="0 0 24 24"><path d="M13.5 2c-5.629 0-10.212 4.436-10.475 10h-3.025l4 5.917 4-5.917h-2.485c.254-4.989 4.396-8.974 9.485-8.974 5.238 0 9.5 4.262 9.5 9.5 0 5.173-4.186 9.385-9.342 9.494l.002 2.008c6.396-.109 11.34-5.327 11.34-11.502 0-6.351-5.149-11.526-11.5-11.526z"/></svg></div>
+          <div class="sc-name">Tunning</div><div class="sc-desc">Modificações e upgrades</div>
         </div>
       </div>
-
-      <!-- Step 2: Veículo -->
       <div class="card-title">2. Seu Veículo</div>
-      <div class="field" style="margin-bottom:1.25rem">
-        <input type="text" id="veiculo-input" placeholder="Ex: Sultan RS, Zentorno, Banshee...">
-      </div>
-
-      <!-- Step 3: Observações -->
+      <div class="field" style="margin-bottom:1.25rem"><input type="text" id="veiculo-input" placeholder="Ex: Sultan RS, Zentorno, Banshee..."></div>
       <div class="card-title">3. Observações (opcional)</div>
-      <div class="field" style="margin-bottom:1.25rem">
-        <textarea id="obs-input" placeholder="Descreva o problema ou o que deseja fazer..."></textarea>
-      </div>
-
-      <!-- Step 4: Horário -->
+      <div class="field" style="margin-bottom:1.25rem"><textarea id="obs-input" placeholder="Descreva o problema ou o que deseja fazer..."></textarea></div>
       <div class="card-title">4. Escolha o Horário</div>
-      <div class="filter-row" id="date-filter">
-        <!-- datas geradas via JS -->
-      </div>
-      <div class="slot-grid" id="slot-grid">
-        <div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Carregando horários...</div></div>
-      </div>
-
+      <div class="filter-row" id="date-filter"></div>
+      <div class="slot-grid" id="slot-grid"><div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Carregando horários...</div></div></div>
       <div style="height:1rem"></div>
       <button class="btn-main" id="btn-confirmar" onclick="confirmarAgendamento()" disabled>Confirmar Agendamento</button>
-    </div>
+    </div></div>
 
     <!-- ── PAGE: MINHA AGENDA ────────────────────────── -->
-    <div class="page" id="pg-agenda">
+    <div class="page" id="pg-agenda"><div class="page-inner">
       <div class="pg-title">Minha Agenda</div>
       <div class="pg-sub">Seus agendamentos</div>
       <div class="filter-row">
@@ -712,93 +673,60 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
         <button class="filter-btn" onclick="filterAgenda('cancelado',this)">Cancelados</button>
       </div>
       <div id="agenda-list"></div>
-    </div>
+    </div></div>
 
     <!-- ── PAGE: PAINEL (funcionário/admin) ─────────── -->
-    <div class="page" id="pg-painel">
+    <div class="page" id="pg-painel"><div class="page-inner">
       <div class="pg-title">Painel</div>
       <div class="pg-sub" id="painel-sub">Agendamentos de hoje</div>
-
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-val" id="p-stat-total">-</div>
-          <div class="stat-lbl">Total</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="p-stat-pend">-</div>
-          <div class="stat-lbl">Pendentes</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="p-stat-done">-</div>
-          <div class="stat-lbl">Concluídos</div>
-        </div>
+        <div class="stat-card"><div class="stat-val" id="p-stat-total">-</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-card"><div class="stat-val" id="p-stat-pend">-</div><div class="stat-lbl">Pendentes</div></div>
+        <div class="stat-card"><div class="stat-val" id="p-stat-done">-</div><div class="stat-lbl">Concluídos</div></div>
       </div>
-
       <div class="filter-row">
         <button class="filter-btn on" onclick="filterPainel('todos',this)">Todos</button>
         <button class="filter-btn" onclick="filterPainel('reparo',this)">Reparo</button>
         <button class="filter-btn" onclick="filterPainel('tunning',this)">Tunning</button>
       </div>
-
       <div id="painel-list"></div>
-    </div>
+    </div></div>
 
     <!-- ── PAGE: ADMIN ───────────────────────────────── -->
-    <div class="page" id="pg-admin">
+    <div class="page" id="pg-admin"><div class="page-inner">
       <div class="pg-title">Admin</div>
       <div class="pg-sub">Gerenciamento do sistema</div>
-
       <div class="filter-row">
         <button class="filter-btn on" onclick="showAdminTab('usuarios',this)">Usuários</button>
         <button class="filter-btn" onclick="showAdminTab('agenda-geral',this)">Agenda Geral</button>
       </div>
-
-      <div id="admin-usuarios">
-        <div id="admin-users-list"></div>
-      </div>
-      <div id="admin-agenda-geral" style="display:none">
-        <div id="admin-agenda-list"></div>
-      </div>
-    </div>
+      <div id="admin-usuarios"><div id="admin-users-list"></div></div>
+      <div id="admin-agenda-geral" style="display:none"><div id="admin-agenda-list"></div></div>
+    </div></div>
 
     <!-- ── PAGE: PERFIL ──────────────────────────────── -->
-    <div class="page" id="pg-perfil">
+    <div class="page" id="pg-perfil"><div class="page-inner" style="max-width:480px">
       <div class="pg-title">Perfil</div>
       <div class="pg-sub">Sua conta</div>
-
       <div class="card" style="text-align:center;padding:1.5rem">
         <div class="profile-avatar" id="profile-avatar">?</div>
         <div style="font-family:var(--font-cond);font-size:22px;font-weight:900;letter-spacing:.5px" id="profile-nome">-</div>
         <div style="font-size:13px;color:var(--text-2);margin-top:4px" id="profile-email">-</div>
         <div style="margin-top:.75rem" id="profile-role-badge"></div>
       </div>
-
       <div class="card">
         <div class="card-title">Informações</div>
-        <div class="appt-row" style="margin-bottom:.6rem">
-          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <span>E-mail: </span><strong id="p-email">-</strong>
-        </div>
-        <div class="appt-row" style="margin-bottom:.6rem">
-          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          <span>Contato: </span><strong id="p-contato">-</strong>
-        </div>
-        <div class="appt-row">
-          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <span>Tipo: </span><strong id="p-role">-</strong>
-        </div>
+        <div class="appt-row" style="margin-bottom:.6rem"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>E-mail: </span><strong id="p-email">-</strong></div>
+        <div class="appt-row" style="margin-bottom:.6rem"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><span>Contato: </span><strong id="p-contato">-</strong></div>
+        <div class="appt-row"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Tipo: </span><strong id="p-role">-</strong></div>
       </div>
-
       <div class="card">
         <div class="card-title">App</div>
-        <div class="srow" style="display:flex;gap:12px;align-items:center;padding:.5rem 0">
-          <div style="flex:1;font-size:14px;color:var(--text-2)">Versão</div>
-          <div style="font-family:var(--mono);font-size:13px;color:var(--orange)">v1.0.0</div>
-        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:.25rem 0"><div style="flex:1;font-size:14px;color:var(--text-2)">Versão</div><div style="font-family:var(--mono);font-size:13px;color:var(--orange)">v1.0.1</div></div>
       </div>
-
       <button class="btn-main" style="background:var(--err-bg);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
-    </div>
+    </div></div>
+
   </div><!-- /pages -->
   </div><!-- /app-body -->
 
@@ -1658,36 +1586,30 @@ function applyUpdate() {
 
   // Listener de mudança de estado de auth
   db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    console.log('[Auth]', event, !!session);
+
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') && session) {
       auth.style.display = 'none';
       app.style.display = 'flex';
-      await boot(session.user);
+      if (!profile) await boot(session.user);
       ld.classList.add('fade-out');
-    } else if (event === 'SIGNED_OUT') {
+    } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
       CU = null; profile = null;
       app.style.display = 'none';
       auth.style.display = 'flex';
       ld.classList.add('fade-out');
-      // Reset form
       g('form-login').classList.add('on');
       g('form-register').classList.remove('on');
-    } else {
-      // Sem sessão
-      setTimeout(() => {
-        ld.classList.add('fade-out');
-        auth.style.display = 'flex';
-      }, 1200);
     }
   });
 
-  // Checa sessão existente
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    setTimeout(() => {
+  // Fallback: se após 3s o loading ainda estiver visível, mostra auth
+  setTimeout(() => {
+    if (!ld.classList.contains('fade-out')) {
       ld.classList.add('fade-out');
       auth.style.display = 'flex';
-    }, 1200);
-  }
+    }
+  }, 3000);
 })();
 </script>
 </body>
