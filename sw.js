@@ -1,5 +1,5 @@
-// PitStop Garage — Service Worker v3.0.0
-const VERSION = 'v3.0.0';
+// PitStop Garage — Service Worker v3.0.1
+const VERSION = 'v3.0.1';
 const CACHE = 'pitstop-' + VERSION;
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => {
