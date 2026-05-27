@@ -7,344 +7,9 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>PitStop Garage</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// ═══════════════════════════════════════════════════
-// VEÍCULOS SALVOS
-// ═══════════════════════════════════════════════════
-async function loadVeiculos(){
-  const {data}=await db.from('veiculos').select('*').eq('user_id',CU.id).order('usado_em',{ascending:false}).limit(8);
-  meuVeiculos=data||[];
-}
-async function saveVeiculo(nome){
-  if(!nome.trim())return;
-  const exists=meuVeiculos.find(v=>v.nome.toLowerCase()===nome.toLowerCase());
-  if(exists){
-    await db.from('veiculos').update({usado_em:new Date().toISOString()}).eq('id',exists.id);
-  } else {
-    await db.from('veiculos').insert({user_id:CU.id,nome:nome.trim()});
-  }
-  await loadVeiculos();
-}
-function renderVeiculoTags(){
-  const wrap=g('vtags'); if(!wrap)return;
-  if(!meuVeiculos.length){wrap.innerHTML='';return;}
-  wrap.innerHTML=meuVeiculos.map(v=>`
-    <div class="vtag" onclick="g('vinput').value='${v.nome.replace(/'/g,"\'")}';checkConf()">
-      ${v.nome}
-      <svg viewBox="0 0 24 24" onclick="event.stopPropagation();delVeiculo('${v.id}')"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </div>`).join('');
-}
-async function delVeiculo(id){
-  await db.from('veiculos').delete().eq('id',id);
-  await loadVeiculos(); renderVeiculoTags();
-}
-
-// ═══════════════════════════════════════════════════
-// NOTIFICAÇÕES (badge no título da aba)
-// ═══════════════════════════════════════════════════
-let origTitle='PitStop Garage';
-let notifCount=0;
-function addNotif(msg){
-  notifCount++;
-  document.title=`(${notifCount}) ${origTitle}`;
-  toast('🔔 '+msg,'ok');
-  // Tenta Web Notification se permitido
-  if(Notification.permission==='granted'){
-    new Notification('PitStop Garage',{body:msg,icon:'/favicon.ico'});
-  }
-}
-function clearNotif(){
-  notifCount=0; document.title=origTitle;
-}
-async function requestNotifPermission(){
-  if('Notification'in window && Notification.permission==='default'){
-    await Notification.requestPermission();
-  }
-}
-// Monitora mudanças nos agendamentos do cliente para notificar
-function checkApptChanges(newAppts){
-  if(!myA.length)return;
-  newAppts.forEach(novo=>{
-    const antigo=myA.find(a=>a.id===novo.id);
-    if(!antigo)return;
-    if(antigo.status==='pendente'&&novo.status==='agendado')
-      addNotif(`Seu agendamento das ${fmtT(novo.horario)} foi aceito! ✅`);
-    if(antigo.status!=='concluido'&&novo.status==='concluido')
-      addNotif(`Seu veículo ${novo.veiculo} está pronto! 🏁`);
-    if(antigo.status!=='cancelado'&&novo.status==='cancelado'&&novo.user_id===CU.id)
-      addNotif(`Agendamento das ${fmtT(novo.horario)} foi cancelado.`);
-  });
-}
-
-// ═══════════════════════════════════════════════════
-// CHAT POR AGENDAMENTO
-// ═══════════════════════════════════════════════════
-let chatApptId=null, chatRT=null;
-async function openChat(apptId, apptLabel){
-  chatApptId=apptId;
-  const {data:msgs}=await db.from('mensagens').select('*').eq('appointment_id',apptId).order('created_at');
-  const isStaff=['funcionario','admin','superadmin'].includes(profile.role);
-  showModal('💬 Chat',apptLabel,async()=>{
-    const txt=gv('chat-input').trim();
-    if(!txt)return false;
-    await db.from('mensagens').insert({appointment_id:apptId,user_id:CU.id,texto:txt});
-    g('chat-input').value='';
-    // Reload msgs
-    const {data:m2}=await db.from('mensagens').select('*').eq('appointment_id',apptId).order('created_at');
-    renderChatMsgs(m2||[]);
-    return false; // não fecha o modal
-  },renderChatHTML(msgs||[],isStaff),'Enviar');
-  // Realtime no chat
-  if(chatRT)db.removeChannel(chatRT);
-  chatRT=db.channel('chat-'+apptId)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mensagens',filter:`appointment_id=eq.${apptId}`},async()=>{
-      const {data:m}=await db.from('mensagens').select('*').eq('appointment_id',apptId).order('created_at');
-      renderChatMsgs(m||[]);
-    }).subscribe();
-}
-function renderChatHTML(msgs, isStaff){
-  return`<div class="chat-wrap" id="chat-msgs">${renderChatMsgsHTML(msgs)}</div>
-    <div class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter')g('mok').click()">
-      <button class="chat-send" onclick="g('mok').click()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-    </div>`;
-}
-function renderChatMsgsHTML(msgs){
-  if(!msgs.length)return'<div style="text-align:center;color:var(--t3);font-size:12px;padding:1rem">Nenhuma mensagem ainda</div>';
-  return msgs.map(m=>{
-    const mine=m.user_id===CU.id;
-    const t=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
-    return`<div class="chat-msg ${mine?'mine':'theirs'}">
-      <div class="chat-bubble">${m.texto}</div>
-      <div class="chat-meta">${t}</div>
-    </div>`;
-  }).join('');
-}
-function renderChatMsgs(msgs){
-  const el=g('chat-msgs');if(!el)return;
-  el.innerHTML=renderChatMsgsHTML(msgs);
-  el.scrollTop=el.scrollHeight;
-}
-
-// ═══════════════════════════════════════════════════
-// AVALIAÇÃO
-// ═══════════════════════════════════════════════════
-let selEstrelas=0;
-async function openAvaliacao(apptId, veiculo){
-  selEstrelas=0;
-  // Verifica se já avaliou
-  const {data:ex}=await db.from('avaliacoes').select('*').eq('appointment_id',apptId).maybeSingle();
-  if(ex){
-    toast('Você já avaliou este atendimento','');
-    return;
-  }
-  showModal('⭐ Avaliação','Como foi o atendimento de '+veiculo+'?',async()=>{
-    if(!selEstrelas)return toast('Selecione as estrelas','err'),false;
-    const {error}=await db.from('avaliacoes').insert({appointment_id:apptId,user_id:CU.id,estrelas:selEstrelas});
-    if(error){toast('Erro ao avaliar','err');return false;}
-    toast('Avaliação enviada! ⭐'.repeat(selEstrelas),'ok');
-    await loadMyA(); renderAgenda();
-  },`<div class="stars" id="stars-wrap">
-    ${[1,2,3,4,5].map(n=>`<span class="star" data-n="${n}" onclick="setEstrelas(${n})">⭐</span>`).join('')}
-  </div>
-  <div style="text-align:center;font-size:13px;color:var(--t2)" id="star-lbl">Toque nas estrelas para avaliar</div>`,'Enviar Avaliação');
-}
-function setEstrelas(n){
-  selEstrelas=n;
-  const labels=['','Muito ruim 😞','Ruim 😕','Ok 😐','Bom 😊','Excelente! 🚀'];
-  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<n));
-  const l=g('star-lbl');if(l)l.textContent=labels[n]||'';
-}
-async function getAvaliacao(apptId){
-  const {data}=await db.from('avaliacoes').select('estrelas').eq('appointment_id',apptId).maybeSingle();
-  return data?.estrelas||0;
-}
-
-// ═══════════════════════════════════════════════════
-// HORÁRIOS CONFIG
-// ═══════════════════════════════════════════════════
-let hconfData=[];
-async function initHConf(){
-  hconfDate=localDateStr();
-  buildHConfDates();
-  await loadHConf();
-}
-function buildHConfDates(){
-  const df=g('hconf-dates');if(!df)return;
-  df.innerHTML='';
-  for(let i=0;i<7;i++){
-    const iso=localDateStr(i);
-    const d=new Date(iso+'T12:00:00');
-    const lbl=i===0?'Hoje':i===1?'Amanhã':d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit'});
-    const btn=document.createElement('button');
-    btn.className='fbtn'+(i===0?' on':'');
-    btn.textContent=lbl; btn.dataset.d=iso;
-    btn.onclick=function(){
-      document.querySelectorAll('#hconf-dates .fbtn').forEach(b=>b.classList.remove('on'));
-      this.classList.add('on'); hconfDate=this.dataset.d; loadHConf();
-    };
-    df.appendChild(btn);
-  }
-}
-async function loadHConf(){
-  const {data}=await db.from('horarios_config').select('*').eq('data',hconfDate);
-  hconfData=data||[];
-  renderHConfSlots();
-}
-async function renderHConfSlots(){
-  const sg=g('hconf-slots');if(!sg)return;
-  // Busca agendamentos do dia para mostrar ocupação
-  const {data:appts}=await db.from('appointments').select('horario,status').like('horario',hconfDate+'%').neq('status','cancelado');
-  const counts={};
-  (appts||[]).forEach(a=>{const k=(a.horario||'').substring(11,16);if(k)counts[k]=(counts[k]||0)+1;});
-  sg.innerHTML=HORARIOS.map(h=>{
-    const conf=hconfData.find(c=>c.horario===h);
-    const blocked=conf?.bloqueado||false;
-    const maxV=conf?.max_vagas||MAX_SLOT;
-    const used=counts[h]||0;
-    let cls=blocked?'blocked':maxV>MAX_SLOT?'extra':'';
-    return`<div class="hconf-slot ${cls}">
-      <div>
-        <div class="hconf-time">${h}</div>
-        <div class="hconf-info">${used}/${maxV} usados${blocked?' · 🔒':maxV>MAX_SLOT?' · +vagas':''}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:.3rem;align-items:flex-end">
-        <button class="toggle-sw${blocked?' on':''}" onclick="toggleBloquear('${h}')" title="${blocked?'Desbloquear':'Bloquear'}"></button>
-        <div style="display:flex;gap:.3rem;margin-top:2px">
-          <button style="padding:2px 6px;border-radius:4px;background:var(--bgi);border:1px solid var(--bdm);color:var(--t2);font-size:11px;cursor:pointer;font-family:var(--fc)" onclick="changeMaxVagas('${h}',-1)">−</button>
-          <span style="font-size:11px;color:var(--t1);font-family:var(--fc);font-weight:700;min-width:14px;text-align:center">${maxV}</span>
-          <button style="padding:2px 6px;border-radius:4px;background:var(--bgi);border:1px solid var(--bdm);color:var(--t2);font-size:11px;cursor:pointer;font-family:var(--fc)" onclick="changeMaxVagas('${h}',1)">+</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-async function toggleBloquear(horario){
-  const conf=hconfData.find(c=>c.horario===horario);
-  if(conf){
-    await db.from('horarios_config').update({bloqueado:!conf.bloqueado}).eq('id',conf.id);
-  } else {
-    await db.from('horarios_config').insert({data:hconfDate,horario,bloqueado:true,max_vagas:MAX_SLOT,criado_por:CU.id});
-  }
-  await loadHConf();
-}
-async function changeMaxVagas(horario,delta){
-  const conf=hconfData.find(c=>c.horario===horario);
-  const cur=conf?.max_vagas||MAX_SLOT;
-  const next=Math.max(1,Math.min(10,cur+delta));
-  if(conf){
-    await db.from('horarios_config').update({max_vagas:next}).eq('id',conf.id);
-  } else {
-    await db.from('horarios_config').insert({data:hconfDate,horario,bloqueado:false,max_vagas:next,criado_por:CU.id});
-  }
-  await loadHConf();
-}
-async function bloquearDia(){
-  const motivo=gv('hconf-motivo').trim()||'Bloqueado';
-  // Insere bloqueio para todos os horários
-  const existing=hconfData.map(c=>c.horario);
-  const toInsert=HORARIOS.filter(h=>!existing.includes(h)).map(h=>({data:hconfDate,horario:h,bloqueado:true,max_vagas:MAX_SLOT,motivo,criado_por:CU.id}));
-  const toUpdate=hconfData.filter(c=>!c.bloqueado).map(c=>db.from('horarios_config').update({bloqueado:true,motivo}).eq('id',c.id));
-  if(toInsert.length) await db.from('horarios_config').insert(toInsert);
-  await Promise.all(toUpdate);
-  toast('Dia bloqueado 🔒','ok'); await loadHConf();
-}
-async function liberarDia(){
-  await db.from('horarios_config').update({bloqueado:false}).eq('data',hconfDate);
-  toast('Dia liberado 🔓','ok'); await loadHConf();
-}
-
-// ═══════════════════════════════════════════════════
-// FILA DE ESPERA
-// ═══════════════════════════════════════════════════
-async function entrarFila(data, horario, tipo_servico, veiculo, observacoes){
-  const {error}=await db.from('fila_espera').insert({user_id:CU.id,data,horario,tipo_servico,veiculo,observacoes:observacoes||''});
-  if(error){toast('Erro na fila: '+error.message,'err');return;}
-  toast('✅ Entrou na fila! Você será notificado se abrir uma vaga.','ok');
-}
-async function checkFila(data, horario){
-  // Chamado quando um agendamento é cancelado — verifica se tem fila
-  const {data:fila}=await db.from('fila_espera').select('*').eq('data',data).eq('horario',horario).eq('notificado',false).order('created_at').limit(1);
-  if(!fila?.length)return;
-  const proximo=fila[0];
-  // Notifica (na prática, só atualiza o flag — a notif aparece no próximo load do usuário)
-  await db.from('fila_espera').update({notificado:true}).eq('id',proximo.id);
-  // Se o usuário que entrou na fila é o atual, notifica
-  if(proximo.user_id===CU?.id) addNotif(`Vaga aberta! ${horario} em ${data} está disponível 🎉`);
-}
-
-// ═══════════════════════════════════════════════════
-// RELATÓRIOS
-// ═══════════════════════════════════════════════════
-async function renderRelatorios(){
-  const el=g('rel-content');if(!el)return;
-  el.innerHTML='<div class="empty"><div class="empty-ico">📊</div><div class="empty-t">Carregando...</div></div>';
-  const {data:all}=await db.from('appointments').select('*').order('horario',{ascending:false}).limit(500);
-  if(!all?.length){el.innerHTML='<div class="empty"><div class="empty-ico">📊</div><div class="empty-t">Sem dados ainda</div></div>';return;}
-  // Stats gerais
-  const total=all.length, concluidos=all.filter(a=>a.status==='concluido').length;
-  const pendentes=all.filter(a=>a.status==='pendente'||a.status==='agendado').length;
-  const cancelados=all.filter(a=>a.status==='cancelado').length;
-  const txConclusao=total?Math.round(concluidos/total*100):0;
-  // Por tipo
-  const reparos=all.filter(a=>a.tipo_servico==='reparo').length;
-  const tunnings=all.filter(a=>a.tipo_servico==='tunning').length;
-  // Por dia (últimos 7 dias)
-  const porDia={};
-  for(let i=6;i>=0;i--){const d=localDateStr(-i);porDia[d]=0;}
-  all.forEach(a=>{const d=(a.horario||'').substring(0,10);if(d in porDia)porDia[d]++;});
-  const maxD=Math.max(...Object.values(porDia),1);
-  // Por horário
-  const porHora={};
-  HORARIOS.forEach(h=>porHora[h]=0);
-  all.forEach(a=>{const h=(a.horario||'').substring(11,16);if(h in porHora)porHora[h]++;});
-  const maxH=Math.max(...Object.values(porHora),1);
-  // Avaliações
-  const {data:avals}=await db.from('avaliacoes').select('estrelas');
-  const avgEst=avals?.length?((avals.reduce((s,a)=>s+a.estrelas,0)/avals.length).toFixed(1)):'-';
-  el.innerHTML=`
-    <div class="sagrid">
-      <div class="sacard o"><div class="saval">${total}</div><div class="salbl">Total</div></div>
-      <div class="sacard g"><div class="saval">${concluidos}</div><div class="salbl">Concluídos</div></div>
-      <div class="sacard y"><div class="saval">${pendentes}</div><div class="salbl">Em aberto</div></div>
-      <div class="sacard b"><div class="saval">${txConclusao}%</div><div class="salbl">Conclusão</div></div>
-    </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Últimos 7 dias</div>
-      <div class="bar-chart">${Object.entries(porDia).map(([d,v])=>{
-        const lbl=new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit'});
-        return`<div class="bar-row"><div class="bar-lbl">${lbl}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxD*100)}%"></div></div><div class="bar-val">${v}</div></div>`;
-      }).join('')}</div>
-    </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Por tipo de serviço</div>
-      <div class="pie-grid">
-        <div class="pie-item"><div class="pie-dot" style="background:var(--o)"></div><div class="pie-lbl">Reparo</div><div class="pie-val">${reparos}</div></div>
-        <div class="pie-item"><div class="pie-dot" style="background:var(--info)"></div><div class="pie-lbl">Tunning</div><div class="pie-val">${tunnings}</div></div>
-        <div class="pie-item"><div class="pie-dot" style="background:var(--ok)"></div><div class="pie-lbl">Concluídos</div><div class="pie-val">${concluidos}</div></div>
-        <div class="pie-item"><div class="pie-dot" style="background:var(--err)"></div><div class="pie-lbl">Cancelados</div><div class="pie-val">${cancelados}</div></div>
-      </div>
-    </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Horários mais disputados</div>
-      <div class="bar-chart">${Object.entries(porHora).map(([h,v])=>`
-        <div class="bar-row"><div class="bar-lbl">${h}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxH*100)}%;background:linear-gradient(90deg,var(--info),var(--pur))"></div></div><div class="bar-val">${v}</div></div>`).join('')}
-      </div>
-    </div>
-    ${avals?.length?`<div class="card" style="text-align:center">
-      <div class="clbl">Avaliação média</div>
-      <div style="font-family:var(--fc);font-size:40px;font-weight:900;color:var(--warn)">${avgEst}</div>
-      <div style="font-size:13px;color:var(--t2)">⭐ baseado em ${avals.length} avaliações</div>
-    </div>`:''}
-  `;
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --o:#F97316;--od:#EA6700;--ol:rgba(249,115,22,.14);
@@ -757,7 +422,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <div style="flex:1"><div style="font-family:var(--fc);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Ver e gerenciar seus agendamentos</div></div>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- AGENDAR -->
@@ -779,7 +444,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         <div class="slotgrid" id="slotgrid"></div>
         <div style="height:.75rem"></div>
         <button class="btnm" id="btnconf" onclick="confirmar()" disabled>Confirmar Agendamento</button>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- AGENDA -->
@@ -794,7 +459,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <button class="fbtn" onclick="filtA('cancelado',this)">Cancelados</button>
         </div>
         <div id="aglist"></div>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- SERVIÇOS -->
@@ -809,7 +474,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <button class="fbtn" onclick="filtS('cancelado',this)">Cancelados</button>
         </div>
         <div id="svclist"></div>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- PAINEL -->
@@ -827,7 +492,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <button class="fbtn" onclick="filtP('tunning',this)">Tunning</button>
         </div>
         <div id="plist"></div>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- SUPER ADMIN -->
@@ -846,7 +511,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         </div>
         <div id="sa-users" style="margin-top:.75rem"><div class="card"><div class="clbl">Todos os Usuários</div><div id="sa-ulist"></div></div></div>
         <div id="sa-appts" style="display:none;margin-top:.75rem"><div id="sa-alist"></div></div>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
       <!-- PERFIL -->
@@ -865,9 +530,35 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <div class="arow" style="margin-bottom:.45rem">✉️ E-mail: <strong id="pemail2">-</strong></div>
           <div class="arow">👤 Cargo: <strong id="prole">-</strong></div>
         </div>
-        <div class="card"><div class="clbl">App</div><div style="display:flex;align-items:center"><div style="flex:1;font-size:13px;color:var(--t2)">Versão</div><div style="font-family:var(--fm);font-size:12px;color:var(--o)">v3.0.1</div></div></div>
+        <div class="card"><div class="clbl">App</div><div style="display:flex;align-items:center"><div style="flex:1;font-size:13px;color:var(--t2)">Versão</div><div style="font-family:var(--fm);font-size:12px;color:var(--o)">v3.0.2</div></div></div>
         <button class="btnm" style="background:var(--errb);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
-        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.1 · © 2025 Paulo Santos</div></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2 · © 2025 Paulo Santos</div></div>
+      </div></div>
+
+      <!-- HORÁRIOS CONFIG -->
+      <div class="page" id="pg-hconf"><div class="pi">
+        <div class="pgtitle">Horários</div>
+        <div class="pgsub">Configurar disponibilidade da oficina</div>
+        <div class="frow" id="hconf-dates"></div>
+        <div style="font-family:var(--fc);font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin:.9rem 0 .5rem">Slots do dia</div>
+        <div class="hconf-grid" id="hconf-slots"></div>
+        <div class="card" style="margin-top:.5rem">
+          <div class="clbl">Bloquear dia inteiro</div>
+          <div class="fld" style="margin-bottom:.65rem"><input type="text" id="hconf-motivo" placeholder="Motivo (ex: Manutenção da oficina)"></div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btnm" style="flex:1" onclick="bloquearDia()">🔒 Bloquear dia</button>
+            <button class="btnm" style="flex:1;background:var(--okb);color:var(--ok);box-shadow:none;border:1px solid rgba(34,197,94,.3)" onclick="liberarDia()">🔓 Liberar dia</button>
+          </div>
+        </div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
+      </div></div>
+
+      <!-- RELATÓRIOS -->
+      <div class="page" id="pg-relatorios"><div class="pi">
+        <div class="pgtitle">Relatórios</div>
+        <div class="pgsub">Visão geral da operação</div>
+        <div id="rel-content"></div>
+        <div class="apf"><div class="apf-b">PitStop Garage</div><div class="apf-v">v3.0.2</div></div>
       </div></div>
 
     </div>
@@ -889,7 +580,7 @@ const SURL = 'https://ddanwviracljymqlvaub.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYW53dmlyYWNsanltcWx2YXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDIxOTEsImV4cCI6MjA5NTQxODE5MX0.vWjAgqNbKnmisOmXtcJ-FXrVLC9XXR_YVzs75-UFPlo';
 const HORARIOS = ['19:00','19:20','19:40','20:00','20:20','20:40','21:00','21:20','21:40','22:00'];
 const MAX_SLOT = 2;
-const VER = 'v3.0.1';
+const VER = 'v3.0.2';
 
 const {createClient} = supabase;
 const db = createClient(SURL, SKEY);
