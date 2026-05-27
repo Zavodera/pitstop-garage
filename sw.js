@@ -1,93 +1,90 @@
-// ─── SERVICE WORKER — PitStop Garage ─────────────────────
-const VERSION = 'v1.0.1';
+// ─── SERVICE WORKER — PitStop Garage ──────────────────────
+// ⚠️  REGRA: sempre que mudar o index.html, atualize VERSION
+//     para o mesmo valor de APP_VERSION definido no index.
+//     Ex: index APP_VERSION = 'v1.0.1' → VERSION = 'v1.0.1'
+// ──────────────────────────────────────────────────────────
+const VERSION = 'v1.0.0';
 const CACHE   = `pitstop-${VERSION}`;
 
-// Apenas cacheia o essencial — NÃO cacheia o index.html
+// Só cacheia fontes e libs externas — NUNCA o index.html
 const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
+// ── INSTALL: ativa imediatamente ────────────────────────────
 self.addEventListener('install', event => {
   console.log(`[SW] Instalando ${CACHE}`);
-  // Ativa imediatamente sem esperar tab fechar
-  self.skipWaiting();
+  self.skipWaiting(); // não espera fechar abas
   event.waitUntil(
-    caches.open(CACHE).then(cache => {
-      return cache.addAll(ASSETS).catch(err => {
-        console.warn('[SW] Alguns assets não foram cacheados:', err);
-      });
-    })
+    caches.open(CACHE).then(cache =>
+      cache.addAll(ASSETS).catch(err => console.warn('[SW] Cache parcial:', err))
+    )
   );
 });
 
+// ── ACTIVATE: apaga todos os caches antigos ─────────────────
 self.addEventListener('activate', event => {
   console.log(`[SW] Ativando ${CACHE}`);
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => {
-        console.log(`[SW] Removendo cache antigo: ${k}`);
-        return caches.delete(k);
-      }))
-    ).then(() => self.clients.claim()) // Toma controle imediato de todas as abas
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE).map(k => {
+          console.log(`[SW] Removendo cache antigo: ${k}`);
+          return caches.delete(k);
+        })
+      ))
+      .then(() => self.clients.claim()) // toma controle imediato
   );
 });
 
+// ── FETCH ───────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
-  // Nunca intercepta chamadas ao Supabase
-  if (url.includes('supabase.co')) return;
+  // Nunca intercepta chamadas externas
+  if (url.includes('supabase.co'))    return;
   if (url.includes('googleapis.com')) return;
-  if (url.includes('jsdelivr.net')) return;
-  if (url.includes('gstatic.com')) return;
+  if (url.includes('jsdelivr.net'))   return;
+  if (url.includes('gstatic.com'))    return;
 
-  // HTML (index.html / raiz): SEMPRE network-first, sem fallback para cache antigo
-  const isHTML = event.request.destination === 'document'
-    || url.endsWith('.html')
-    || url.endsWith('/')
-    || url.split('?')[0].split('#')[0].split('/').pop() === '';
+  // HTML → SEMPRE busca da rede, nunca cacheia
+  const isHTML =
+    event.request.destination === 'document' ||
+    url.endsWith('.html') ||
+    url.endsWith('/');
 
   if (isHTML) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
-        .then(response => {
-          // Nunca armazena HTML no cache
-          return response;
-        })
-        .catch(() => {
-          // Só usa cache se estiver OFFLINE de verdade
-          return caches.match('./index.html');
-        })
+        .catch(() => caches.match('./index.html')) // fallback offline
     );
     return;
   }
 
-  // Fonts e libs externas: cache-first (economiza banda)
+  // Fontes e libs → cache-first (economiza banda)
   if (url.includes('fonts.') || url.includes('jsdelivr') || url.includes('cdn.')) {
     event.respondWith(
       caches.match(event.request).then(cached => {
         if (cached) return cached;
-        return fetch(event.request).then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE).then(cache => cache.put(event.request, clone));
+        return fetch(event.request).then(res => {
+          if (res && res.status === 200) {
+            caches.open(CACHE).then(c => c.put(event.request, res.clone()));
           }
-          return response;
+          return res;
         }).catch(() => null);
       })
     );
     return;
   }
 
-  // Demais recursos: network-first
+  // Resto → network-first
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
 });
 
+// ── MESSAGE: força atualização manual ───────────────────────
 self.addEventListener('message', event => {
-  if (event.data === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
