@@ -116,33 +116,44 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
    AUTH
 ═══════════════════════════════════════════════════════ */
 #auth {
-  display: none; flex-direction: column;
-  min-height: 100vh; background: var(--bg); overflow-y: auto;
-}
-.a-hero {
-  background: linear-gradient(160deg, #1a1208 0%, #0C0B09 100%);
-  padding: 3rem 1.5rem 2rem; text-align: center; position: relative; overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
-.a-hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249,115,22,.15) 0%, transparent 70%);
-}
-.a-hero-logo {
-  width: 72px; height: 72px; border-radius: 20px;
-  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1.25rem; box-shadow: var(--sh-orange);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg); overflow-y: auto; padding: 1.5rem;
   position: relative;
 }
-.a-hero-logo svg { width: 38px; height: 38px; fill: #fff; }
-.a-hero h1 { font-family: var(--font-cond); font-size: 30px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--text-1); position: relative; }
+#auth::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(249,115,22,.08) 0%, transparent 70%);
+}
+.a-card {
+  background: var(--bg-card); border: 1px solid var(--border-m);
+  border-radius: var(--r-xl); width: 100%; max-width: 380px;
+  box-shadow: var(--sh-md); overflow: hidden; position: relative; z-index: 1;
+}
+.a-hero {
+  background: linear-gradient(160deg, rgba(249,115,22,.12) 0%, transparent 100%);
+  padding: 1.75rem 1.5rem 1.25rem; text-align: center; position: relative;
+  border-bottom: 1px solid var(--border-m);
+}
+.a-hero-logo {
+  width: 52px; height: 52px; border-radius: 15px;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; box-shadow: var(--sh-orange);
+}
+.a-hero-logo svg { width: 28px; height: 28px; fill: #fff; }
+.a-hero h1 { font-family: var(--font-cond); font-size: 22px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--text-1); }
 .a-hero h1 span { color: var(--orange); }
-.a-hero p { font-size: 13px; color: var(--text-2); margin-top: .4rem; position: relative; letter-spacing: .5px; }
-.a-body { padding: 1.75rem 1.25rem 2.5rem; }
-.a-tabs { display: flex; background: var(--bg-s); border-radius: var(--r-full); padding: 4px; margin-bottom: 1.5rem; border: 1px solid var(--border-m); }
-.a-tab { flex: 1; padding: .55rem; text-align: center; border-radius: var(--r-full); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .22s; color: var(--text-2); font-family: var(--font-cond); letter-spacing: 1px; text-transform: uppercase; }
+.a-hero p { font-size: 12px; color: var(--text-3); margin-top: .3rem; letter-spacing: .3px; }
+.a-body { padding: 1.25rem 1.25rem 1.5rem; }
+.a-tabs { display: flex; background: var(--bg-s); border-radius: var(--r-full); padding: 3px; margin-bottom: 1.25rem; border: 1px solid var(--border-m); }
+.a-tab { flex: 1; padding: .45rem; text-align: center; border-radius: var(--r-full); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .22s; color: var(--text-2); font-family: var(--font-cond); letter-spacing: 1px; text-transform: uppercase; }
 .a-tab.on { background: var(--orange); color: #fff; box-shadow: var(--sh-sm); }
+.a-footer {
+  text-align: center; margin-top: 1.5rem; font-size: 12px; color: var(--text-3);
+  position: relative; z-index: 1;
+}
+.a-footer a { color: var(--text-3); text-decoration: none; }
+.a-footer a:hover { color: var(--orange); }
 .field { margin-bottom: 1rem; }
 .field label { font-size: 11px; font-weight: 700; color: var(--text-2); margin-bottom: .4rem; display: block; letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-cond); }
 .field input, .field select, .field textarea {
@@ -174,7 +185,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .a-form { display: none; } .a-form.on { display: block; }
 
 /* ═══════════════════════════════════════════════════════
-   APP SHELL
+   APP SHELL — com sidebar desktop
 ═══════════════════════════════════════════════════════ */
 .app-shell { display: none; flex-direction: column; height: 100vh; background: var(--bg-s); }
 
@@ -196,7 +207,6 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .hdr-brand { font-family: var(--font-cond); font-size: 20px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-1); }
 .hdr-brand span { color: var(--orange); }
 .hdr-right { display: flex; align-items: center; gap: 8px; }
-.hdr-time { font-family: var(--mono); font-size: 12px; color: var(--text-2); background: var(--bg-s); padding: 4px 10px; border-radius: var(--r-full); border: 1px solid var(--border-m); }
 .role-badge { padding: 3px 10px; border-radius: var(--r-full); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: var(--font-cond); }
 .role-cliente { background: var(--orange-pale); color: var(--orange); }
 .role-funcionario { background: var(--info-bg); color: var(--info); }
@@ -205,17 +215,62 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .btn-icon:hover { background: var(--bg-card); border-color: var(--border); }
 .btn-icon svg { width: 18px; height: 18px; stroke: var(--text-2); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+/* BODY = sidebar + pages */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR — desktop only */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--bg-card); border-right: 1px solid var(--border-m);
+  display: flex; flex-direction: column; padding: 1.25rem .75rem;
+  overflow-y: auto;
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: .25rem; flex: 1; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: .65rem .85rem; border-radius: var(--r-md);
+  cursor: pointer; transition: all .18s; color: var(--text-2);
+  font-family: var(--font-cond); font-size: 14px; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.sidebar-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+.sidebar-item:hover { background: var(--bg-in); color: var(--text-1); }
+.sidebar-item.on { background: var(--orange-pale); color: var(--orange); border-color: rgba(249,115,22,.2); }
+.sidebar-divider { height: 1px; background: var(--border-subtle); margin: .75rem 0; }
+.sidebar-logout {
+  display: flex; align-items: center; gap: 10px;
+  padding: .65rem .85rem; border-radius: var(--r-md);
+  cursor: pointer; transition: all .18s; color: var(--text-3);
+  font-family: var(--font-cond); font-size: 13px; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase;
+}
+.sidebar-logout svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.sidebar-logout:hover { color: var(--err); }
+
 /* PAGES */
 .pages { flex: 1; overflow: hidden; position: relative; }
-.page { position: absolute; inset: 0; overflow-y: auto; padding: 1.25rem; display: none; padding-bottom: calc(var(--tab-h) + 1rem); }
+.page { position: absolute; inset: 0; overflow-y: auto; padding: 1.5rem 2rem; display: none; max-width: 860px; }
 .page.on { display: block; }
 
-/* TABS */
+/* TABS — mobile only */
 .tabs { height: var(--tab-h); background: var(--bg-card); border-top: 1px solid var(--border-m); display: flex; align-items: stretch; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: all .18s; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-cond); position: relative; }
 .tab.on { color: var(--orange); }
 .tab.on::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--orange); border-radius: 0 0 4px 4px; }
 .tab svg { width: 22px; height: 22px; }
+
+/* RESPONSIVE: mobile = bottom tabs, desktop = sidebar */
+@media (min-width: 768px) {
+  .tabs { display: none; }
+  .sidebar { display: flex; }
+  .page { padding-bottom: 1.5rem; }
+}
+@media (max-width: 767px) {
+  .sidebar { display: none; }
+  .app-body { flex-direction: column; }
+  .page { padding: 1.25rem; padding-bottom: calc(var(--tab-h) + 1rem); max-width: 100%; }
+}
 
 /* ═══════════════════════════════════════════════════════
    SHARED COMPONENTS
@@ -466,39 +521,44 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
 <!-- ── AUTH ───────────────────────────────────────────── -->
 <div id="auth">
-  <div class="a-hero">
-    <div class="a-hero-logo">
-      <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+  <div class="a-card">
+    <div class="a-hero">
+      <div class="a-hero-logo">
+        <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+      </div>
+      <h1>Pit<span>Stop</span> Garage</h1>
+      <p>Agende seu serviço mesmo offline do servidor</p>
     </div>
-    <h1>Pit<span>Stop</span> Garage</h1>
-    <p>Agende seu serviço mesmo offline do servidor</p>
-  </div>
-  <div class="a-body">
-    <div class="a-tabs">
-      <div class="a-tab on" onclick="showAuthTab('login')">Entrar</div>
-      <div class="a-tab" onclick="showAuthTab('register')">Cadastrar</div>
-    </div>
+    <div class="a-body">
+      <div class="a-tabs">
+        <div class="a-tab on" onclick="showAuthTab('login')">Entrar</div>
+        <div class="a-tab" onclick="showAuthTab('register')">Cadastrar</div>
+      </div>
 
-    <!-- Login -->
-    <div class="a-form on" id="form-login">
-      <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email"></div>
-      <div class="field"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="btn-main" onclick="doLogin()" id="btn-login">Entrar na Garagem</button>
-      <div class="a-msg" id="msg-login"></div>
-      <div style="text-align:center;margin-top:1rem">
-        <span style="font-size:13px;color:var(--text-3);cursor:pointer" onclick="showReset()">Esqueci minha senha</span>
+      <!-- Login -->
+      <div class="a-form on" id="form-login">
+        <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="field"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+        <button class="btn-main" onclick="doLogin()" id="btn-login">Entrar na Garagem</button>
+        <div class="a-msg" id="msg-login"></div>
+        <div style="text-align:center;margin-top:1rem">
+          <span style="font-size:13px;color:var(--text-3);cursor:pointer" onclick="showReset()">Esqueci minha senha</span>
+        </div>
+      </div>
+
+      <!-- Register -->
+      <div class="a-form" id="form-register">
+        <div class="field"><label>Nome (Nick RP)</label><input type="text" id="r-nome" placeholder="Ex: Carlos Mechanic" autocomplete="name"></div>
+        <div class="field"><label>Contato (Discord ou Telefone)</label><input type="text" id="r-contato" placeholder="Ex: carlos#1234 ou (11) 99999-9999"></div>
+        <div class="field"><label>E-mail</label><input type="email" id="r-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="field"><label>Senha</label><input type="password" id="r-pass" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
+        <button class="btn-main" onclick="doRegister()" id="btn-register">Criar Conta</button>
+        <div class="a-msg" id="msg-register"></div>
       </div>
     </div>
-
-    <!-- Register -->
-    <div class="a-form" id="form-register">
-      <div class="field"><label>Nome (Nick RP)</label><input type="text" id="r-nome" placeholder="Ex: Carlos Mechanic" autocomplete="name"></div>
-      <div class="field"><label>Contato (Discord ou Telefone)</label><input type="text" id="r-contato" placeholder="Ex: carlos#1234 ou (11) 99999-9999"></div>
-      <div class="field"><label>E-mail</label><input type="email" id="r-email" placeholder="seu@email.com" autocomplete="email"></div>
-      <div class="field"><label>Senha</label><input type="password" id="r-pass" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
-      <button class="btn-main" onclick="doRegister()" id="btn-register">Criar Conta</button>
-      <div class="a-msg" id="msg-register"></div>
-    </div>
+  </div>
+  <div class="a-footer">
+    PitStop Garage · © 2025 Paulo Santos
   </div>
 </div>
 
@@ -514,7 +574,6 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
       <div class="hdr-brand">Pit<span>Stop</span></div>
     </div>
     <div class="hdr-right">
-      <div class="hdr-time" id="hdr-clock">--:--</div>
       <div class="role-badge" id="hdr-role"></div>
       <div class="btn-icon" onclick="doLogout()" title="Sair">
         <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
@@ -522,7 +581,20 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
     </div>
   </div>
 
-  <!-- PAGES -->
+  <!-- BODY: sidebar + pages -->
+  <div class="app-body">
+
+    <!-- SIDEBAR (desktop) — gerada via JS -->
+    <div class="sidebar" id="app-sidebar">
+      <div class="sidebar-nav" id="sidebar-nav"></div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-logout" onclick="doLogout()">
+        <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        Sair
+      </div>
+    </div>
+
+    <!-- PAGES -->
   <div class="pages">
 
     <!-- ── PAGE: HOME (cliente) ──────────────────────── -->
@@ -725,9 +797,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
       <button class="btn-main" style="background:var(--err-bg);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
     </div>
-  </div>
+  </div><!-- /pages -->
+  </div><!-- /app-body -->
 
-  <!-- TABS -->
+  <!-- TABS (mobile) -->
   <div class="tabs" id="app-tabs">
     <!-- Geradas via JS por role -->
   </div>
@@ -782,21 +855,6 @@ let selectedDate = null;
 let allMyAppts = [];
 let allPainelAppts = [];
 let realtimeSub = null;
-
-/* ═══════════════════════════════════════════════════════════
-   RELÓGIO
-═══════════════════════════════════════════════════════════ */
-function startClock() {
-  function tick() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    const el = document.getElementById('hdr-clock');
-    if (el) el.textContent = `${h}:${m}`;
-  }
-  tick();
-  setInterval(tick, 10000);
-}
 
 /* ═══════════════════════════════════════════════════════════
    UTILS
@@ -910,66 +968,62 @@ async function boot(user) {
   buildUI();
   await loadAll();
   setupRealtime();
-  startClock();
 }
 
 function buildUI() {
   const role = profile.role;
-  // Header
+  // Header role badge
   const rb = g('hdr-role');
   rb.textContent = role === 'admin' ? 'Admin' : role === 'funcionario' ? 'Funcionário' : 'Cliente';
   rb.className = `role-badge role-${role}`;
 
-  // Montar tabs por role
-  const tabs = g('app-tabs');
+  // Define nav items por role
+  let navItems = [];
   if (role === 'cliente') {
-    tabs.innerHTML = `
-      <div class="tab on" onclick="goTab('home')" id="tab-home">
-        ${icoHome()}
-        <span>Início</span>
-      </div>
-      <div class="tab" onclick="goTab('agendar')" id="tab-agendar">
-        ${icoCalPlus()}
-        <span>Agendar</span>
-      </div>
-      <div class="tab" onclick="goTab('agenda')" id="tab-agenda">
-        ${icoCal()}
-        <span>Minha Agenda</span>
-      </div>
-      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
-        ${icoUser()}
-        <span>Perfil</span>
-      </div>`;
+    navItems = [
+      { id: 'home',    label: 'Início',       ico: icoHome() },
+      { id: 'agendar', label: 'Agendar',      ico: icoCalPlus() },
+      { id: 'agenda',  label: 'Minha Agenda', ico: icoCal() },
+      { id: 'perfil',  label: 'Perfil',       ico: icoUser() },
+    ];
   } else if (role === 'funcionario') {
-    tabs.innerHTML = `
-      <div class="tab on" onclick="goTab('painel')" id="tab-painel">
-        ${icoDash()}
-        <span>Painel</span>
-      </div>
-      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
-        ${icoUser()}
-        <span>Perfil</span>
-      </div>`;
-    g('pg-painel').classList.add('on');
-    g('pg-home').classList.remove('on');
+    navItems = [
+      { id: 'painel', label: 'Painel', ico: icoDash() },
+      { id: 'perfil', label: 'Perfil', ico: icoUser() },
+    ];
   } else if (role === 'admin') {
-    tabs.innerHTML = `
-      <div class="tab on" onclick="goTab('painel')" id="tab-painel">
-        ${icoDash()}
-        <span>Painel</span>
-      </div>
-      <div class="tab" onclick="goTab('admin')" id="tab-admin">
-        ${icoSettings()}
-        <span>Admin</span>
-      </div>
-      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
-        ${icoUser()}
-        <span>Perfil</span>
-      </div>`;
-    g('pg-painel').classList.add('on');
-    g('pg-home').classList.remove('on');
+    navItems = [
+      { id: 'painel', label: 'Painel', ico: icoDash() },
+      { id: 'admin',  label: 'Admin',  ico: icoSettings() },
+      { id: 'perfil', label: 'Perfil', ico: icoUser() },
+    ];
   }
-  // Perfil page
+
+  // ── Sidebar (desktop) ──────────────────────────────
+  const sn = g('sidebar-nav');
+  sn.innerHTML = navItems.map(n =>
+    `<div class="sidebar-item${n.id === navItems[0].id ? ' on' : ''}" id="sidebar-${n.id}" onclick="goTab('${n.id}')">
+      ${n.ico} ${n.label}
+    </div>`
+  ).join('');
+
+  // ── Bottom tabs (mobile) ───────────────────────────
+  const tabs = g('app-tabs');
+  tabs.innerHTML = navItems.map(n =>
+    `<div class="tab${n.id === navItems[0].id ? ' on' : ''}" onclick="goTab('${n.id}')" id="tab-${n.id}">
+      ${n.ico}
+      <span>${n.label}</span>
+    </div>`
+  ).join('');
+
+  // Página inicial por role
+  if (role === 'cliente') {
+    g('pg-home').classList.add('on');
+  } else {
+    g('pg-home').classList.remove('on');
+    g('pg-painel').classList.add('on');
+  }
+
   syncProfileUI();
 }
 
@@ -990,14 +1044,15 @@ function syncProfileUI() {
    NAVEGAÇÃO
 ═══════════════════════════════════════════════════════════ */
 function goTab(name) {
-  // Remove 'on' de todas as pages
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('on'));
   const pg = g(`pg-${name}`);
   const tb = g(`tab-${name}`);
+  const sb = g(`sidebar-${name}`);
   if (pg) pg.classList.add('on');
   if (tb) tb.classList.add('on');
-  // Ações ao entrar em cada página
+  if (sb) sb.classList.add('on');
   if (name === 'agendar') initAgendar();
   if (name === 'agenda') renderAgenda();
   if (name === 'painel') renderPainel();
