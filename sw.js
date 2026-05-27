@@ -1,22 +1,17 @@
-// PitStop Garage — Service Worker v3.0.2
-const VERSION = 'v3.0.2';
-const CACHE = 'pitstop-' + VERSION;
+// PitStop Garage — SW desabilitado
+// Este arquivo existe apenas para destruir SWs antigos
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-    .then(()=>self.clients.claim())
-  );
+self.addEventListener('activate', async (e) => {
+  // Limpa TODOS os caches
+  const keys = await caches.keys();
+  await Promise.all(keys.map(k => caches.delete(k)));
+  // Desregistra a si mesmo
+  await self.registration.unregister();
+  // Força reload em todos os clients
+  const clients = await self.clients.matchAll();
+  clients.forEach(client => client.navigate(client.url));
 });
 self.addEventListener('fetch', e => {
-  const url=e.request.url;
-  if(url.includes('index.html')||url.endsWith('/')||e.request.destination==='document'){
-    e.respondWith(fetch(e.request,{cache:'no-store'})); return;
-  }
-  if(url.includes('supabase.co')||url.includes('googleapis')||url.includes('jsdelivr'))return;
-  e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(res=>{
-    if(res&&res.status===200)caches.open(CACHE).then(c=>c.put(e.request,res.clone()));
-    return res;
-  })));
+  // Sempre busca da rede, nunca do cache
+  e.respondWith(fetch(e.request, {cache: 'no-store'}));
 });
-self.addEventListener('message',e=>{if(e.data==='SKIP_WAITING')self.skipWaiting();});
