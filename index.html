@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#F97316">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PitStop">
+<title>PitStop Garage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
+  /* Brand */
+  --orange: #F97316;
+  --orange-light: #FB923C;
+  --orange-pale: rgba(249,115,22,.14);
+  --orange-dark: #EA6700;
+  --yellow: #FBBF24;
+  --yellow-pale: rgba(251,191,36,.12);
+
+  /* Neutrals */
+  --text-1: #F5F0E8;
+  --text-2: #A8A090;
+  --text-3: #5C5548;
+
+  /* Backgrounds */
+  --bg: #0C0B09;
+  --bg-s: #111009;
+  --bg-card: #181510;
+  --bg-in: #1E1A14;
+  --bg-panel: #141210;
+
+  /* Borders */
+  --border: rgba(249,115,22,.18);
+  --border-m: rgba(255,255,255,.07);
+  --border-subtle: rgba(255,255,255,.04);
+
+  /* Semantic */
+  --ok: #22C55E;
+  --ok-bg: rgba(34,197,94,.12);
+  --warn: #FBBF24;
+  --warn-bg: rgba(251,191,36,.12);
+  --err: #EF4444;
+  --err-bg: rgba(239,68,68,.12);
+  --info: #60A5FA;
+  --info-bg: rgba(96,165,250,.12);
+
+  /* Status */
+  --status-pending: #FBBF24;
+  --status-done: #22C55E;
+  --status-cancelled: #6B7280;
+
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-full: 999px;
+
+  /* Shadows */
+  --sh-sm: 0 2px 10px rgba(0,0,0,.6);
+  --sh-md: 0 8px 28px rgba(0,0,0,.7);
+  --sh-orange: 0 4px 20px rgba(249,115,22,.25);
+
+  /* Layout */
+  --tab-h: 70px;
+  --hdr-h: 58px;
+
+  /* Fonts */
+  --font: 'Barlow', sans-serif;
+  --font-cond: 'Barlow Condensed', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text-1); font-family: var(--font); font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+/* ═══════════════════════════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════════════════════════ */
+#ld {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; transition: opacity .5s ease;
+}
+#ld.fade-out { opacity: 0; pointer-events: none; }
+.ld-logo {
+  width: 80px; height: 80px; border-radius: 22px;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--sh-orange);
+  animation: ld-pulse 2s ease-in-out infinite;
+}
+.ld-logo svg { width: 44px; height: 44px; fill: #fff; }
+.ld-name { font-family: var(--font-cond); font-size: 32px; font-weight: 900; letter-spacing: 2px; color: var(--text-1); text-transform: uppercase; }
+.ld-name span { color: var(--orange); }
+.ld-sub { font-size: 12px; color: var(--text-3); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; margin-bottom: 2rem; }
+.ld-bar { width: 56px; height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.ld-bar-i { height: 100%; background: linear-gradient(90deg, var(--orange-dark), var(--yellow)); border-radius: 3px; animation: lb 1.6s ease-in-out infinite; }
+@keyframes lb { 0% { width: 0; margin-left: 0; } 50% { width: 100%; margin-left: 0; } 100% { width: 0; margin-left: 100%; } }
+@keyframes ld-pulse { 0%,100% { box-shadow: var(--sh-orange); } 50% { box-shadow: 0 4px 32px rgba(249,115,22,.5); } }
+
+/* ═══════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════ */
+#auth {
+  display: none; flex-direction: column;
+  min-height: 100vh; background: var(--bg); overflow-y: auto;
+}
+.a-hero {
+  background: linear-gradient(160deg, #1a1208 0%, #0C0B09 100%);
+  padding: 3rem 1.5rem 2rem; text-align: center; position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.a-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249,115,22,.15) 0%, transparent 70%);
+}
+.a-hero-logo {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem; box-shadow: var(--sh-orange);
+  position: relative;
+}
+.a-hero-logo svg { width: 38px; height: 38px; fill: #fff; }
+.a-hero h1 { font-family: var(--font-cond); font-size: 30px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--text-1); position: relative; }
+.a-hero h1 span { color: var(--orange); }
+.a-hero p { font-size: 13px; color: var(--text-2); margin-top: .4rem; position: relative; letter-spacing: .5px; }
+.a-body { padding: 1.75rem 1.25rem 2.5rem; }
+.a-tabs { display: flex; background: var(--bg-s); border-radius: var(--r-full); padding: 4px; margin-bottom: 1.5rem; border: 1px solid var(--border-m); }
+.a-tab { flex: 1; padding: .55rem; text-align: center; border-radius: var(--r-full); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .22s; color: var(--text-2); font-family: var(--font-cond); letter-spacing: 1px; text-transform: uppercase; }
+.a-tab.on { background: var(--orange); color: #fff; box-shadow: var(--sh-sm); }
+.field { margin-bottom: 1rem; }
+.field label { font-size: 11px; font-weight: 700; color: var(--text-2); margin-bottom: .4rem; display: block; letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-cond); }
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--bg-in);
+  border: 1.5px solid var(--border-m); border-radius: var(--r-sm);
+  padding: .8rem 1rem; color: var(--text-1); font-family: var(--font);
+  font-size: 15px; outline: none; transition: border .18s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--orange); box-shadow: 0 0 0 3px rgba(249,115,22,.1);
+  background: var(--bg-card);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
+.field select option { background: var(--bg-card); }
+.field textarea { resize: none; min-height: 80px; }
+.btn-main {
+  width: 100%; padding: .9rem;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  border: none; border-radius: var(--r-sm);
+  color: #fff; font-family: var(--font-cond); font-size: 16px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all .2s;
+  box-shadow: var(--sh-orange);
+}
+.btn-main:hover { background: linear-gradient(135deg, var(--orange), var(--orange-light)); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(249,115,22,.4); }
+.btn-main:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.a-msg { font-size: 13px; text-align: center; margin-top: .75rem; min-height: 18px; font-weight: 600; }
+.a-msg.err { color: var(--err); } .a-msg.ok { color: var(--ok); }
+.a-form { display: none; } .a-form.on { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════════════ */
+.app-shell { display: none; flex-direction: column; height: 100vh; background: var(--bg-s); }
+
+/* HEADER */
+.hdr {
+  height: var(--hdr-h); background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.25rem; flex-shrink: 0;
+}
+.hdr-left { display: flex; align-items: center; gap: 10px; }
+.hdr-logo {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; box-shadow: var(--sh-orange);
+}
+.hdr-logo svg { width: 22px; height: 22px; fill: #fff; }
+.hdr-brand { font-family: var(--font-cond); font-size: 20px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-1); }
+.hdr-brand span { color: var(--orange); }
+.hdr-right { display: flex; align-items: center; gap: 8px; }
+.hdr-time { font-family: var(--mono); font-size: 12px; color: var(--text-2); background: var(--bg-s); padding: 4px 10px; border-radius: var(--r-full); border: 1px solid var(--border-m); }
+.role-badge { padding: 3px 10px; border-radius: var(--r-full); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: var(--font-cond); }
+.role-cliente { background: var(--orange-pale); color: var(--orange); }
+.role-funcionario { background: var(--info-bg); color: var(--info); }
+.role-admin { background: var(--warn-bg); color: var(--warn); }
+.btn-icon { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--bg-in); border: 1px solid var(--border-m); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .18s; }
+.btn-icon:hover { background: var(--bg-card); border-color: var(--border); }
+.btn-icon svg { width: 18px; height: 18px; stroke: var(--text-2); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* PAGES */
+.pages { flex: 1; overflow: hidden; position: relative; }
+.page { position: absolute; inset: 0; overflow-y: auto; padding: 1.25rem; display: none; padding-bottom: calc(var(--tab-h) + 1rem); }
+.page.on { display: block; }
+
+/* TABS */
+.tabs { height: var(--tab-h); background: var(--bg-card); border-top: 1px solid var(--border-m); display: flex; align-items: stretch; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: all .18s; color: var(--text-3); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-family: var(--font-cond); position: relative; }
+.tab.on { color: var(--orange); }
+.tab.on::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--orange); border-radius: 0 0 4px 4px; }
+.tab svg { width: 22px; height: 22px; }
+
+/* ═══════════════════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════════════════ */
+.pg-title { font-family: var(--font-cond); font-size: 26px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .2rem; color: var(--text-1); }
+.pg-sub { font-size: 13px; color: var(--text-2); margin-bottom: 1.5rem; font-weight: 500; }
+.card { background: var(--bg-card); border: 1px solid var(--border-m); border-radius: var(--r-lg); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--sh-sm); }
+.card-title { font-family: var(--font-cond); font-size: 13px; font-weight: 800; color: var(--text-2); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 1rem; }
+.sg-title { font-family: var(--font-cond); font-size: 12px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; margin: 1.5rem 0 .6rem; }
+.sg-title:first-child { margin-top: 0; }
+
+/* Slots de horário */
+.slot-grid { display: flex; flex-direction: column; gap: .6rem; }
+.slot {
+  background: var(--bg-card); border: 1.5px solid var(--border-m);
+  border-radius: var(--r-md); padding: 1rem 1.1rem;
+  display: flex; align-items: center; gap: .9rem;
+  cursor: pointer; transition: all .2s; position: relative;
+}
+.slot:hover:not(.slot-full):not(.slot-selected) { border-color: var(--orange); background: rgba(249,115,22,.05); }
+.slot.slot-full { opacity: .55; cursor: not-allowed; }
+.slot.slot-selected { border-color: var(--orange); background: var(--orange-pale); box-shadow: 0 0 0 3px rgba(249,115,22,.1); }
+.slot-time { font-family: var(--font-cond); font-size: 22px; font-weight: 800; color: var(--text-1); min-width: 64px; letter-spacing: 1px; }
+.slot-info { flex: 1; }
+.slot-label { font-size: 12px; color: var(--text-2); font-weight: 600; }
+.slot-vagas { margin-top: 3px; }
+.vaga-dots { display: flex; gap: 5px; }
+.vaga-dot { width: 10px; height: 10px; border-radius: 50%; }
+.vaga-dot.used { background: var(--orange); }
+.vaga-dot.free { background: var(--border); }
+.slot-badge {
+  font-family: var(--font-cond); font-size: 11px; font-weight: 800;
+  letter-spacing: .5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: var(--r-full);
+}
+.slot-badge.available { background: var(--ok-bg); color: var(--ok); }
+.slot-badge.one-left { background: var(--warn-bg); color: var(--warn); }
+.slot-badge.full { background: var(--err-bg); color: var(--err); }
+
+/* Tipo de serviço */
+.service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.25rem; }
+.service-card {
+  background: var(--bg-card); border: 2px solid var(--border-m);
+  border-radius: var(--r-md); padding: 1.1rem .9rem;
+  text-align: center; cursor: pointer; transition: all .22s;
+}
+.service-card:hover { border-color: var(--orange); background: var(--orange-pale); }
+.service-card.on { border-color: var(--orange); background: var(--orange-pale); }
+.service-card.on .sc-icon { background: var(--orange); }
+.service-card.on .sc-icon svg { fill: #fff; }
+.sc-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-in); display: flex; align-items: center; justify-content: center; margin: 0 auto .75rem; transition: all .22s; }
+.sc-icon svg { width: 24px; height: 24px; fill: var(--text-2); transition: all .22s; }
+.sc-name { font-family: var(--font-cond); font-size: 15px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--text-1); }
+.sc-desc { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+
+/* Appointment cards */
+.appt-card {
+  background: var(--bg-card); border: 1px solid var(--border-m);
+  border-radius: var(--r-lg); padding: 1.1rem 1.2rem;
+  margin-bottom: .75rem; box-shadow: var(--sh-sm);
+  position: relative; overflow: hidden;
+}
+.appt-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.appt-card.pendente::before { background: var(--status-pending); }
+.appt-card.concluido::before { background: var(--status-done); }
+.appt-card.cancelado::before { background: var(--status-cancelled); }
+.appt-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .7rem; }
+.appt-hora { font-family: var(--font-cond); font-size: 20px; font-weight: 900; color: var(--text-1); letter-spacing: 1px; }
+.appt-status-badge {
+  font-family: var(--font-cond); font-size: 11px; font-weight: 800;
+  letter-spacing: .5px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: var(--r-full);
+}
+.appt-status-badge.pendente { background: var(--warn-bg); color: var(--warn); }
+.appt-status-badge.concluido { background: var(--ok-bg); color: var(--ok); }
+.appt-status-badge.cancelado { background: rgba(107,114,128,.15); color: var(--status-cancelled); }
+.appt-info { display: flex; flex-direction: column; gap: .35rem; }
+.appt-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+.appt-row strong { color: var(--text-1); font-weight: 600; }
+.appt-row svg { width: 14px; height: 14px; fill: var(--text-3); flex-shrink: 0; }
+.appt-actions { display: flex; gap: .6rem; margin-top: .9rem; padding-top: .9rem; border-top: 1px solid var(--border-subtle); }
+.btn-sm {
+  flex: 1; padding: .5rem .75rem; border-radius: var(--r-sm);
+  font-family: var(--font-cond); font-size: 13px; font-weight: 800;
+  letter-spacing: .5px; text-transform: uppercase;
+  border: none; cursor: pointer; transition: all .18s;
+}
+.btn-ok { background: var(--ok-bg); color: var(--ok); }
+.btn-ok:hover { background: rgba(34,197,94,.25); }
+.btn-cancel { background: var(--err-bg); color: var(--err); }
+.btn-cancel:hover { background: rgba(239,68,68,.25); }
+.btn-outline { background: transparent; color: var(--text-2); border: 1px solid var(--border-m); }
+.btn-outline:hover { border-color: var(--border); color: var(--text-1); }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1.25rem; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border-m); border-radius: var(--r-md); padding: .9rem .75rem; text-align: center; }
+.stat-val { font-family: var(--font-cond); font-size: 28px; font-weight: 900; color: var(--text-1); line-height: 1; }
+.stat-lbl { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; font-family: var(--font-cond); }
+
+/* Filter tabs */
+.filter-row { display: flex; gap: .5rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-btn { flex-shrink: 0; padding: .4rem .9rem; border-radius: var(--r-full); font-family: var(--font-cond); font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; border: 1.5px solid var(--border-m); background: transparent; color: var(--text-2); cursor: pointer; transition: all .18s; white-space: nowrap; }
+.filter-btn.on { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+/* Day section */
+.day-section { margin-bottom: 1.5rem; }
+.day-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: .75rem;
+  padding: .5rem .75rem; background: var(--bg-panel);
+  border-radius: var(--r-sm); border-left: 3px solid var(--orange);
+}
+.day-hora { font-family: var(--font-cond); font-size: 18px; font-weight: 900; color: var(--orange); letter-spacing: 1px; min-width: 60px; }
+.day-count { font-family: var(--font-cond); font-size: 13px; font-weight: 700; color: var(--text-2); }
+.day-count span { color: var(--text-1); }
+.count-pill {
+  margin-left: auto; font-family: var(--font-cond); font-size: 12px; font-weight: 800;
+  padding: 2px 8px; border-radius: var(--r-full);
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.count-pill.full { background: var(--err-bg); color: var(--err); }
+.count-pill.partial { background: var(--warn-bg); color: var(--warn); }
+.count-pill.empty { background: var(--ok-bg); color: var(--ok); }
+
+/* Perfil */
+.profile-avatar {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-cond); font-size: 26px; font-weight: 900; color: #fff;
+  margin: 0 auto 1rem; box-shadow: var(--sh-orange);
+}
+
+/* Admin table */
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { font-family: var(--font-cond); font-size: 11px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border-m); }
+.admin-table td { padding: .75rem; font-size: 13px; color: var(--text-2); border-bottom: 1px solid var(--border-subtle); }
+.admin-table td:first-child { color: var(--text-1); font-weight: 600; }
+
+/* Toast */
+#toast-wrap { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: .5rem; pointer-events: none; }
+.toast {
+  background: var(--bg-card); border: 1px solid var(--border-m);
+  border-radius: var(--r-md); padding: .7rem 1.1rem;
+  font-size: 13px; font-weight: 600; color: var(--text-1);
+  box-shadow: var(--sh-md); pointer-events: auto;
+  display: flex; align-items: center; gap: .6rem;
+  animation: toast-in .3s cubic-bezier(.34,1.56,.64,1);
+  max-width: 320px; white-space: nowrap;
+}
+.toast.err { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.1); }
+.toast.ok { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.1); }
+.toast.out { animation: toast-out .3s ease forwards; }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.toast.err .toast-dot { background: var(--err); }
+.toast.ok .toast-dot { background: var(--ok); }
+.toast:not(.err):not(.ok) .toast-dot { background: var(--orange); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-12px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-12px) scale(.9); } }
+
+/* Modal */
+#modal-wrap { position: fixed; inset: 0; z-index: 8000; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); }
+#modal-wrap.on { display: flex; }
+.modal {
+  background: var(--bg-card); border-radius: var(--r-xl) var(--r-xl) 0 0;
+  border: 1px solid var(--border-m); border-bottom: none;
+  width: 100%; max-width: 480px; max-height: 90vh;
+  display: flex; flex-direction: column;
+  animation: modal-in .3s cubic-bezier(.34,1.56,.64,1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@keyframes modal-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-hdr { padding: 1.25rem 1.25rem .75rem; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+.modal-drag { width: 36px; height: 4px; background: var(--border-m); border-radius: 2px; margin: 0 auto .9rem; }
+.modal-title { font-family: var(--font-cond); font-size: 20px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; }
+.modal-sub { font-size: 13px; color: var(--text-2); margin-top: .25rem; }
+.modal-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
+.modal-footer { padding: .9rem 1.25rem 1.1rem; display: flex; gap: .6rem; flex-shrink: 0; }
+.btn-mc { flex: 1; padding: .8rem; border-radius: var(--r-sm); font-family: var(--font-cond); font-size: 14px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; background: var(--bg-in); border: 1px solid var(--border-m); color: var(--text-2); cursor: pointer; transition: all .18s; }
+.btn-mc:hover { background: var(--bg-s); }
+.btn-mok { flex: 2; padding: .8rem; border-radius: var(--r-sm); font-family: var(--font-cond); font-size: 14px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; background: linear-gradient(135deg, var(--orange-dark), var(--orange)); border: none; color: #fff; cursor: pointer; transition: all .18s; box-shadow: var(--sh-orange); }
+.btn-mok:hover { opacity: .9; }
+.btn-mok:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Empty state */
+.empty { text-align: center; padding: 3rem 1rem; }
+.empty-ico { font-size: 48px; margin-bottom: .75rem; }
+.empty-title { font-family: var(--font-cond); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-2); }
+.empty-sub { font-size: 13px; color: var(--text-3); margin-top: .4rem; }
+
+/* Update banner */
+#upd-banner { position: fixed; top: 0; left: 0; right: 0; background: var(--orange); color: #fff; font-family: var(--font-cond); font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: .6rem 1rem; text-align: center; cursor: pointer; z-index: 9998; display: none; }
+#upd-banner.show { display: flex; align-items: center; justify-content: center; gap: .5rem; }
+
+/* Divider */
+.divider { height: 1px; background: var(--border-subtle); margin: 1rem 0; }
+
+/* Notice */
+.notice { display: flex; gap: .75rem; padding: .85rem 1rem; border-radius: var(--r-md); background: var(--orange-pale); border: 1px solid rgba(249,115,22,.3); margin-bottom: 1rem; }
+.notice svg { width: 18px; height: 18px; fill: var(--orange); flex-shrink: 0; margin-top: 1px; }
+.notice p { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.notice p strong { color: var(--orange); }
+
+/* Próximo destaque */
+.next-card {
+  background: linear-gradient(135deg, rgba(249,115,22,.15), rgba(251,191,36,.08));
+  border: 1.5px solid rgba(249,115,22,.35);
+  border-radius: var(--r-lg); padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem; position: relative; overflow: hidden;
+}
+.next-card::after {
+  content: ''; position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+  width: 100px; height: 100px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(249,115,22,.12) 0%, transparent 70%);
+}
+.next-tag { font-family: var(--font-cond); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--orange); margin-bottom: .5rem; }
+.next-time { font-family: var(--font-cond); font-size: 32px; font-weight: 900; letter-spacing: 2px; color: var(--text-1); line-height: 1; }
+.next-details { font-size: 13px; color: var(--text-2); margin-top: .4rem; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-m); border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 360px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .service-grid { grid-template-columns: 1fr 1fr; }
+  .pg-title { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOADING ─────────────────────────────────────────── -->
+<div id="ld">
+  <div class="ld-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM9.5 16.5v-9l7 4.5-7 4.5z"/></svg>
+  </div>
+  <div class="ld-name">Pit<span>Stop</span></div>
+  <div class="ld-sub">Garage RP</div>
+  <div class="ld-bar"><div class="ld-bar-i"></div></div>
+</div>
+
+<!-- ── UPDATE BANNER ──────────────────────────────────── -->
+<div id="upd-banner" onclick="applyUpdate()">⚡ Nova versão disponível — toque para atualizar</div>
+
+<!-- ── AUTH ───────────────────────────────────────────── -->
+<div id="auth">
+  <div class="a-hero">
+    <div class="a-hero-logo">
+      <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+    </div>
+    <h1>Pit<span>Stop</span> Garage</h1>
+    <p>Agende seu serviço mesmo offline do servidor</p>
+  </div>
+  <div class="a-body">
+    <div class="a-tabs">
+      <div class="a-tab on" onclick="showAuthTab('login')">Entrar</div>
+      <div class="a-tab" onclick="showAuthTab('register')">Cadastrar</div>
+    </div>
+
+    <!-- Login -->
+    <div class="a-form on" id="form-login">
+      <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="field"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-main" onclick="doLogin()" id="btn-login">Entrar na Garagem</button>
+      <div class="a-msg" id="msg-login"></div>
+      <div style="text-align:center;margin-top:1rem">
+        <span style="font-size:13px;color:var(--text-3);cursor:pointer" onclick="showReset()">Esqueci minha senha</span>
+      </div>
+    </div>
+
+    <!-- Register -->
+    <div class="a-form" id="form-register">
+      <div class="field"><label>Nome (Nick RP)</label><input type="text" id="r-nome" placeholder="Ex: Carlos Mechanic" autocomplete="name"></div>
+      <div class="field"><label>Contato (Discord ou Telefone)</label><input type="text" id="r-contato" placeholder="Ex: carlos#1234 ou (11) 99999-9999"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="r-email" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="field"><label>Senha</label><input type="password" id="r-pass" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
+      <button class="btn-main" onclick="doRegister()" id="btn-register">Criar Conta</button>
+      <div class="a-msg" id="msg-register"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ───────────────────────────────────────── -->
+<div class="app-shell" id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-logo">
+        <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+      </div>
+      <div class="hdr-brand">Pit<span>Stop</span></div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-time" id="hdr-clock">--:--</div>
+      <div class="role-badge" id="hdr-role"></div>
+      <div class="btn-icon" onclick="doLogout()" title="Sair">
+        <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages">
+
+    <!-- ── PAGE: HOME (cliente) ──────────────────────── -->
+    <div class="page on" id="pg-home">
+      <div class="pg-title" id="home-greeting">Olá 👋</div>
+      <div class="pg-sub">Pronto para agendar?</div>
+
+      <!-- Próximo agendamento -->
+      <div id="next-appt-wrap"></div>
+
+      <!-- Stats rápidas -->
+      <div class="stats-grid" id="home-stats">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-pending">-</div>
+          <div class="stat-lbl">Pendentes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-done">-</div>
+          <div class="stat-lbl">Concluídos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-vagas">-</div>
+          <div class="stat-lbl">Vagas Hoje</div>
+        </div>
+      </div>
+
+      <!-- Aviso -->
+      <div class="notice">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <p>Cada horário suporta <strong>2 veículos</strong>. Você pode ter no máximo <strong>2 agendamentos ativos</strong>.</p>
+      </div>
+
+      <div class="sg-title">Ações rápidas</div>
+      <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agendar')">
+        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0">
+          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Novo Agendamento</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Reserve seu horário na oficina</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="card" style="display:flex;gap:.75rem;align-items:center;cursor:pointer" onclick="goTab('agenda')">
+        <div class="sc-icon" style="width:40px;height:40px;flex-shrink:0;margin:0;background:var(--ok-bg)">
+          <svg viewBox="0 0 24 24" style="fill:var(--ok)"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-cond);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Minha Agenda</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px">Ver e gerenciar seus agendamentos</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- ── PAGE: AGENDAR ─────────────────────────────── -->
+    <div class="page" id="pg-agendar">
+      <div class="pg-title">Agendar</div>
+      <div class="pg-sub">Escolha o serviço e horário</div>
+
+      <!-- Step 1: Tipo -->
+      <div class="card-title">1. Tipo de Serviço</div>
+      <div class="service-grid">
+        <div class="service-card" id="sc-reparo" onclick="selectService('reparo')">
+          <div class="sc-icon">
+            <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+          </div>
+          <div class="sc-name">Reparo</div>
+          <div class="sc-desc">Consertos e manutenção</div>
+        </div>
+        <div class="service-card" id="sc-tunning" onclick="selectService('tunning')">
+          <div class="sc-icon">
+            <svg viewBox="0 0 24 24"><path d="M13.5 2c-5.629 0-10.212 4.436-10.475 10h-3.025l4 5.917 4-5.917h-2.485c.254-4.989 4.396-8.974 9.485-8.974 5.238 0 9.5 4.262 9.5 9.5 0 5.173-4.186 9.385-9.342 9.494l.002 2.008c6.396-.109 11.34-5.327 11.34-11.502 0-6.351-5.149-11.526-11.5-11.526z"/></svg>
+          </div>
+          <div class="sc-name">Tunning</div>
+          <div class="sc-desc">Modificações e upgrades</div>
+        </div>
+      </div>
+
+      <!-- Step 2: Veículo -->
+      <div class="card-title">2. Seu Veículo</div>
+      <div class="field" style="margin-bottom:1.25rem">
+        <input type="text" id="veiculo-input" placeholder="Ex: Sultan RS, Zentorno, Banshee...">
+      </div>
+
+      <!-- Step 3: Observações -->
+      <div class="card-title">3. Observações (opcional)</div>
+      <div class="field" style="margin-bottom:1.25rem">
+        <textarea id="obs-input" placeholder="Descreva o problema ou o que deseja fazer..."></textarea>
+      </div>
+
+      <!-- Step 4: Horário -->
+      <div class="card-title">4. Escolha o Horário</div>
+      <div class="filter-row" id="date-filter">
+        <!-- datas geradas via JS -->
+      </div>
+      <div class="slot-grid" id="slot-grid">
+        <div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Carregando horários...</div></div>
+      </div>
+
+      <div style="height:1rem"></div>
+      <button class="btn-main" id="btn-confirmar" onclick="confirmarAgendamento()" disabled>Confirmar Agendamento</button>
+    </div>
+
+    <!-- ── PAGE: MINHA AGENDA ────────────────────────── -->
+    <div class="page" id="pg-agenda">
+      <div class="pg-title">Minha Agenda</div>
+      <div class="pg-sub">Seus agendamentos</div>
+      <div class="filter-row">
+        <button class="filter-btn on" onclick="filterAgenda('todos',this)">Todos</button>
+        <button class="filter-btn" onclick="filterAgenda('pendente',this)">Pendentes</button>
+        <button class="filter-btn" onclick="filterAgenda('concluido',this)">Concluídos</button>
+        <button class="filter-btn" onclick="filterAgenda('cancelado',this)">Cancelados</button>
+      </div>
+      <div id="agenda-list"></div>
+    </div>
+
+    <!-- ── PAGE: PAINEL (funcionário/admin) ─────────── -->
+    <div class="page" id="pg-painel">
+      <div class="pg-title">Painel</div>
+      <div class="pg-sub" id="painel-sub">Agendamentos de hoje</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="p-stat-total">-</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="p-stat-pend">-</div>
+          <div class="stat-lbl">Pendentes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="p-stat-done">-</div>
+          <div class="stat-lbl">Concluídos</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn on" onclick="filterPainel('todos',this)">Todos</button>
+        <button class="filter-btn" onclick="filterPainel('reparo',this)">Reparo</button>
+        <button class="filter-btn" onclick="filterPainel('tunning',this)">Tunning</button>
+      </div>
+
+      <div id="painel-list"></div>
+    </div>
+
+    <!-- ── PAGE: ADMIN ───────────────────────────────── -->
+    <div class="page" id="pg-admin">
+      <div class="pg-title">Admin</div>
+      <div class="pg-sub">Gerenciamento do sistema</div>
+
+      <div class="filter-row">
+        <button class="filter-btn on" onclick="showAdminTab('usuarios',this)">Usuários</button>
+        <button class="filter-btn" onclick="showAdminTab('agenda-geral',this)">Agenda Geral</button>
+      </div>
+
+      <div id="admin-usuarios">
+        <div id="admin-users-list"></div>
+      </div>
+      <div id="admin-agenda-geral" style="display:none">
+        <div id="admin-agenda-list"></div>
+      </div>
+    </div>
+
+    <!-- ── PAGE: PERFIL ──────────────────────────────── -->
+    <div class="page" id="pg-perfil">
+      <div class="pg-title">Perfil</div>
+      <div class="pg-sub">Sua conta</div>
+
+      <div class="card" style="text-align:center;padding:1.5rem">
+        <div class="profile-avatar" id="profile-avatar">?</div>
+        <div style="font-family:var(--font-cond);font-size:22px;font-weight:900;letter-spacing:.5px" id="profile-nome">-</div>
+        <div style="font-size:13px;color:var(--text-2);margin-top:4px" id="profile-email">-</div>
+        <div style="margin-top:.75rem" id="profile-role-badge"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Informações</div>
+        <div class="appt-row" style="margin-bottom:.6rem">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <span>E-mail: </span><strong id="p-email">-</strong>
+        </div>
+        <div class="appt-row" style="margin-bottom:.6rem">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <span>Contato: </span><strong id="p-contato">-</strong>
+        </div>
+        <div class="appt-row">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>Tipo: </span><strong id="p-role">-</strong>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">App</div>
+        <div class="srow" style="display:flex;gap:12px;align-items:center;padding:.5rem 0">
+          <div style="flex:1;font-size:14px;color:var(--text-2)">Versão</div>
+          <div style="font-family:var(--mono);font-size:13px;color:var(--orange)">v1.0.0</div>
+        </div>
+      </div>
+
+      <button class="btn-main" style="background:var(--err-bg);color:var(--err);box-shadow:none;border:1px solid rgba(239,68,68,.3)" onclick="doLogout()">Sair da Conta</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="app-tabs">
+    <!-- Geradas via JS por role -->
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────── -->
+<div id="toast-wrap"></div>
+
+<!-- ── MODAL ───────────────────────────────────────────── -->
+<div id="modal-wrap" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hdr">
+      <div class="modal-drag"></div>
+      <div class="modal-title" id="modal-title">Confirmar</div>
+      <div class="modal-sub" id="modal-sub"></div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-mc" onclick="closeModal()">Cancelar</button>
+      <button class="btn-mok" id="modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG — ALTERE ESTAS VARIÁVEIS COM SEUS DADOS DO SUPABASE
+═══════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://ddanwviracljymqlvaub.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_wAf7VgquhWSlz3A0Pde5iw_LiNUe166';
+
+/* ═══════════════════════════════════════════════════════════
+   HORÁRIOS DISPONÍVEIS (customize aqui)
+═══════════════════════════════════════════════════════════ */
+const HORARIOS = ['19:00','19:20','19:40','20:00','20:20','20:40','21:00','21:20','21:40','22:00'];
+const MAX_POR_SLOT = 2;
+
+/* ═══════════════════════════════════════════════════════════
+   INICIALIZAÇÃO
+═══════════════════════════════════════════════════════════ */
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let CU = null;       // current user (auth)
+let profile = null;  // perfil do banco
+let newSW = null;
+let agendaFilter = 'todos';
+let painelFilter = 'todos';
+let selectedService = null;
+let selectedSlot = null;
+let selectedDate = null;
+let allMyAppts = [];
+let allPainelAppts = [];
+let realtimeSub = null;
+
+/* ═══════════════════════════════════════════════════════════
+   RELÓGIO
+═══════════════════════════════════════════════════════════ */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const el = document.getElementById('hdr-clock');
+    if (el) el.textContent = `${h}:${m}`;
+  }
+  tick();
+  setInterval(tick, 10000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════ */
+function g(id) { return document.getElementById(id); }
+function v(id) { const el = g(id); return el ? el.value : ''; }
+function toast(msg, type = '') {
+  const w = g('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="toast-dot"></span>${msg}`;
+  w.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
+}
+function setMsg(id, msg, type = '') {
+  const el = g(id);
+  if (el) { el.textContent = msg; el.className = `a-msg ${type}`; }
+}
+function fmt(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const dia = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const hr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return `${dia} às ${hr}`;
+}
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+}
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════ */
+function showAuthTab(tab) {
+  g('form-login').classList.toggle('on', tab === 'login');
+  g('form-register').classList.toggle('on', tab === 'register');
+  document.querySelectorAll('.a-tab').forEach((t, i) => {
+    t.classList.toggle('on', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
+}
+
+async function doLogin() {
+  const email = v('l-email').trim();
+  const pass = v('l-pass');
+  if (!email || !pass) return setMsg('msg-login', 'Preencha todos os campos', 'err');
+  const btn = g('btn-login');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar na Garagem';
+  if (error) return setMsg('msg-login', 'E-mail ou senha incorretos', 'err');
+}
+
+async function doRegister() {
+  const nome = v('r-nome').trim();
+  const contato = v('r-contato').trim();
+  const email = v('r-email').trim();
+  const pass = v('r-pass');
+  if (!nome || !contato || !email || !pass) return setMsg('msg-register', 'Preencha todos os campos', 'err');
+  if (pass.length < 6) return setMsg('msg-register', 'Senha deve ter mín. 6 caracteres', 'err');
+  const btn = g('btn-register');
+  btn.disabled = true; btn.textContent = 'Criando conta...';
+  const { error } = await db.auth.signUp({
+    email, password: pass,
+    options: { data: { nome, contato, role: 'cliente' } }
+  });
+  btn.disabled = false; btn.textContent = 'Criar Conta';
+  if (error) return setMsg('msg-register', error.message, 'err');
+  setMsg('msg-register', '✅ Conta criada! Verifique seu e-mail.', 'ok');
+}
+
+async function showReset() {
+  const email = prompt('Digite seu e-mail para redefinir a senha:');
+  if (!email) return;
+  const { error } = await db.auth.resetPasswordForEmail(email);
+  if (error) toast('Erro ao enviar e-mail', 'err');
+  else toast('E-mail de redefinição enviado!', 'ok');
+}
+
+async function doLogout() {
+  if (realtimeSub) db.removeChannel(realtimeSub);
+  await db.auth.signOut();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOOTSTRAP
+═══════════════════════════════════════════════════════════ */
+async function boot(user) {
+  CU = user;
+  // Busca perfil
+  const { data: p } = await db.from('profiles').select('*').eq('id', user.id).maybeSingle();
+  if (!p) {
+    // Tenta criar se não existir (caso trigger falhe)
+    const meta = user.user_metadata || {};
+    await db.from('profiles').insert({
+      id: user.id,
+      nome: meta.nome || 'Usuário',
+      contato: meta.contato || '',
+      role: 'cliente'
+    });
+    const { data: p2 } = await db.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    profile = p2;
+  } else {
+    profile = p;
+  }
+  buildUI();
+  await loadAll();
+  setupRealtime();
+  startClock();
+}
+
+function buildUI() {
+  const role = profile.role;
+  // Header
+  const rb = g('hdr-role');
+  rb.textContent = role === 'admin' ? 'Admin' : role === 'funcionario' ? 'Funcionário' : 'Cliente';
+  rb.className = `role-badge role-${role}`;
+
+  // Montar tabs por role
+  const tabs = g('app-tabs');
+  if (role === 'cliente') {
+    tabs.innerHTML = `
+      <div class="tab on" onclick="goTab('home')" id="tab-home">
+        ${icoHome()}
+        <span>Início</span>
+      </div>
+      <div class="tab" onclick="goTab('agendar')" id="tab-agendar">
+        ${icoCalPlus()}
+        <span>Agendar</span>
+      </div>
+      <div class="tab" onclick="goTab('agenda')" id="tab-agenda">
+        ${icoCal()}
+        <span>Minha Agenda</span>
+      </div>
+      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
+        ${icoUser()}
+        <span>Perfil</span>
+      </div>`;
+  } else if (role === 'funcionario') {
+    tabs.innerHTML = `
+      <div class="tab on" onclick="goTab('painel')" id="tab-painel">
+        ${icoDash()}
+        <span>Painel</span>
+      </div>
+      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
+        ${icoUser()}
+        <span>Perfil</span>
+      </div>`;
+    g('pg-painel').classList.add('on');
+    g('pg-home').classList.remove('on');
+  } else if (role === 'admin') {
+    tabs.innerHTML = `
+      <div class="tab on" onclick="goTab('painel')" id="tab-painel">
+        ${icoDash()}
+        <span>Painel</span>
+      </div>
+      <div class="tab" onclick="goTab('admin')" id="tab-admin">
+        ${icoSettings()}
+        <span>Admin</span>
+      </div>
+      <div class="tab" onclick="goTab('perfil')" id="tab-perfil">
+        ${icoUser()}
+        <span>Perfil</span>
+      </div>`;
+    g('pg-painel').classList.add('on');
+    g('pg-home').classList.remove('on');
+  }
+  // Perfil page
+  syncProfileUI();
+}
+
+function syncProfileUI() {
+  if (!profile) return;
+  const ini = profile.nome?.charAt(0).toUpperCase() || '?';
+  g('profile-avatar').textContent = ini;
+  g('profile-nome').textContent = profile.nome;
+  g('profile-email').textContent = CU?.email || '-';
+  g('p-email').textContent = CU?.email || '-';
+  g('p-contato').textContent = profile.contato || '-';
+  g('p-role').textContent = profile.role;
+  const rb = g('profile-role-badge');
+  rb.innerHTML = `<span class="role-badge role-${profile.role}">${profile.role}</span>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVEGAÇÃO
+═══════════════════════════════════════════════════════════ */
+function goTab(name) {
+  // Remove 'on' de todas as pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  const pg = g(`pg-${name}`);
+  const tb = g(`tab-${name}`);
+  if (pg) pg.classList.add('on');
+  if (tb) tb.classList.add('on');
+  // Ações ao entrar em cada página
+  if (name === 'agendar') initAgendar();
+  if (name === 'agenda') renderAgenda();
+  if (name === 'painel') renderPainel();
+  if (name === 'admin') renderAdmin();
+  if (name === 'home') renderHome();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════════ */
+let modalCallback = null;
+function showModal(title, sub, onOk, body = '', okText = 'Confirmar') {
+  g('modal-title').textContent = title;
+  g('modal-sub').textContent = sub;
+  g('modal-body').innerHTML = body;
+  g('modal-ok').textContent = okText;
+  g('modal-ok').disabled = false;
+  g('modal-wrap').classList.add('on');
+  modalCallback = onOk;
+  g('modal-ok').onclick = async () => {
+    g('modal-ok').disabled = true;
+    g('modal-ok').textContent = 'Aguarde...';
+    const result = await onOk();
+    if (result !== false) closeModal();
+  };
+}
+function closeModal() {
+  g('modal-wrap').classList.remove('on');
+  modalCallback = null;
+}
+function closeModalOnBg(e) {
+  if (e.target === g('modal-wrap')) closeModal();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOAD ALL DATA
+═══════════════════════════════════════════════════════════ */
+async function loadAll() {
+  if (profile.role === 'cliente') {
+    await loadMyAppts();
+    renderHome();
+  } else {
+    await loadPainelAppts();
+    renderPainel();
+  }
+  if (profile.role === 'admin') loadAdminData();
+}
+
+async function loadMyAppts() {
+  const { data } = await db.from('appointments')
+    .select('*')
+    .eq('user_id', CU.id)
+    .order('horario', { ascending: true });
+  allMyAppts = data || [];
+}
+
+async function loadPainelAppts() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+
+  let q = db.from('appointments')
+    .select('*, profiles(nome,contato,role)')
+    .gte('horario', today.toISOString())
+    .lt('horario', tomorrow.toISOString())
+    .order('horario', { ascending: true });
+
+  const { data } = await q;
+  allPainelAppts = data || [];
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REALTIME
+═══════════════════════════════════════════════════════════ */
+function setupRealtime() {
+  realtimeSub = db.channel('pitstop-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, async () => {
+      await loadAll();
+      toast('Agenda atualizada', '');
+    })
+    .subscribe();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOME (cliente)
+═══════════════════════════════════════════════════════════ */
+function renderHome() {
+  const nome = profile.nome?.split(' ')[0] || 'Piloto';
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  g('home-greeting').textContent = `${greeting}, ${nome} 👋`;
+
+  const ativos = allMyAppts.filter(a => a.status === 'pendente');
+  const done = allMyAppts.filter(a => a.status === 'concluido');
+  g('stat-pending').textContent = ativos.length;
+  g('stat-done').textContent = done.length;
+
+  // Vagas hoje
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
+  const vagasUsadas = allMyAppts.filter(a => {
+    const d = new Date(a.horario);
+    return d >= hoje && d < amanha && a.status !== 'cancelado';
+  }).length;
+  g('stat-vagas').textContent = Math.max(0, HORARIOS.length * MAX_POR_SLOT - vagasUsadas);
+
+  // Próximo agendamento
+  const prox = ativos.find(a => new Date(a.horario) >= new Date());
+  const w = g('next-appt-wrap');
+  if (prox) {
+    w.innerHTML = `
+      <div class="next-card" style="cursor:pointer" onclick="goTab('agenda')">
+        <div class="next-tag">⚡ Próximo agendamento</div>
+        <div class="next-time">${fmtTime(prox.horario)}</div>
+        <div class="next-details">${fmtDate(prox.horario)} · ${prox.veiculo} · ${prox.tipo_servico}</div>
+      </div>`;
+  } else {
+    w.innerHTML = '';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AGENDAR
+═══════════════════════════════════════════════════════════ */
+function selectService(tipo) {
+  selectedService = tipo;
+  document.querySelectorAll('.service-card').forEach(c => c.classList.remove('on'));
+  g(`sc-${tipo}`).classList.add('on');
+  checkConfirmar();
+}
+
+function initAgendar() {
+  selectedSlot = null;
+  selectedDate = null;
+  buildDateFilter();
+}
+
+function buildDateFilter() {
+  const df = g('date-filter');
+  df.innerHTML = '';
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    const label = i === 0 ? 'Hoje' : i === 1 ? 'Amanhã' : d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' });
+    const iso = d.toISOString().split('T')[0];
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (i === 0 ? ' on' : '');
+    btn.textContent = label;
+    btn.onclick = function() {
+      document.querySelectorAll('#date-filter .filter-btn').forEach(b => b.classList.remove('on'));
+      this.classList.add('on');
+      selectedDate = iso; selectedSlot = null;
+      checkConfirmar();
+      loadSlots(iso);
+    };
+    df.appendChild(btn);
+    if (i === 0) { selectedDate = iso; loadSlots(iso); }
+  }
+}
+
+async function loadSlots(dateStr) {
+  const sg = g('slot-grid');
+  sg.innerHTML = '<div class="empty"><div class="empty-ico">⏳</div><div class="empty-title">Verificando vagas...</div></div>';
+
+  const dayStart = new Date(dateStr + 'T00:00:00');
+  const dayEnd = new Date(dateStr + 'T23:59:59');
+
+  const { data: appts } = await db.from('appointments')
+    .select('horario, status')
+    .gte('horario', dayStart.toISOString())
+    .lte('horario', dayEnd.toISOString())
+    .neq('status', 'cancelado');
+
+  // Conta por horário
+  const counts = {};
+  (appts || []).forEach(a => {
+    const key = new Date(a.horario).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  sg.innerHTML = '';
+  HORARIOS.forEach(h => {
+    const used = counts[h] || 0;
+    const free = MAX_POR_SLOT - used;
+    const full = free <= 0;
+    const slot = document.createElement('div');
+    slot.className = `slot${full ? ' slot-full' : ''}`;
+    slot.dataset.h = h;
+
+    let badgeClass = 'available', badgeText = 'Livre';
+    if (full) { badgeClass = 'full'; badgeText = 'Lotado'; }
+    else if (used === 1) { badgeClass = 'one-left'; badgeText = '1 vaga'; }
+
+    slot.innerHTML = `
+      <div class="slot-time">${h}</div>
+      <div class="slot-info">
+        <div class="slot-label">${dateStr === new Date().toISOString().split('T')[0] ? 'Hoje' : 'Disponível'}</div>
+        <div class="slot-vagas">
+          <div class="vaga-dots">
+            ${Array.from({length: MAX_POR_SLOT}, (_,i) => `<div class="vaga-dot ${i < used ? 'used' : 'free'}"></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <span class="slot-badge ${badgeClass}">${badgeText}</span>`;
+
+    if (!full) {
+      slot.onclick = () => {
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('slot-selected'));
+        slot.classList.add('slot-selected');
+        selectedSlot = h;
+        checkConfirmar();
+      };
+    }
+    sg.appendChild(slot);
+  });
+}
+
+function checkConfirmar() {
+  const btn = g('btn-confirmar');
+  const ok = selectedService && selectedSlot && selectedDate && v('veiculo-input').trim();
+  btn.disabled = !ok;
+}
+
+// Listeners para inputs do form
+document.getElementById('veiculo-input').addEventListener('input', checkConfirmar);
+
+async function confirmarAgendamento() {
+  if (!selectedService || !selectedSlot || !selectedDate) return;
+  const veiculo = v('veiculo-input').trim();
+  const obs = v('obs-input').trim();
+  if (!veiculo) return toast('Informe o veículo', 'err');
+
+  // Verifica limite de agendamentos ativos
+  const ativos = allMyAppts.filter(a => a.status === 'pendente');
+  if (ativos.length >= 2) {
+    return showModal('Limite atingido', 'Você já tem 2 agendamentos pendentes.', () => {}, '', 'OK');
+  }
+
+  // Monta timestamp
+  const [hr, min] = selectedSlot.split(':');
+  const horario = new Date(`${selectedDate}T${hr}:${min}:00`);
+
+  showModal(
+    'Confirmar Agendamento',
+    `${selectedService} — ${veiculo}`,
+    async () => {
+      // Verifica vagas novamente antes de inserir
+      const dayStart = new Date(`${selectedDate}T00:00:00`);
+      const dayEnd = new Date(`${selectedDate}T23:59:59`);
+      const { data: existing } = await db.from('appointments')
+        .select('id')
+        .gte('horario', dayStart.toISOString())
+        .lte('horario', dayEnd.toISOString())
+        .eq('horario', horario.toISOString())
+        .neq('status', 'cancelado');
+
+      if ((existing || []).length >= MAX_POR_SLOT) {
+        toast('Horário lotado! Escolha outro.', 'err');
+        return false;
+      }
+
+      const { error } = await db.from('appointments').insert({
+        user_id: CU.id,
+        tipo_servico: selectedService,
+        horario: horario.toISOString(),
+        veiculo, observacoes: obs, status: 'pendente'
+      });
+      if (error) { toast('Erro ao agendar: ' + error.message, 'err'); return false; }
+      toast('Agendamento realizado! ✅', 'ok');
+      await loadMyAppts();
+      renderHome();
+      // Reset form
+      selectedSlot = null; selectedService = null;
+      document.querySelectorAll('.slot').forEach(s => s.classList.remove('slot-selected'));
+      document.querySelectorAll('.service-card').forEach(c => c.classList.remove('on'));
+      g('veiculo-input').value = ''; g('obs-input').value = '';
+      g('btn-confirmar').disabled = true;
+      loadSlots(selectedDate);
+      goTab('agenda');
+    },
+    `<div style="font-size:14px;color:var(--text-2);line-height:1.8">
+      <div>🔧 Serviço: <strong style="color:var(--text-1)">${selectedService}</strong></div>
+      <div>🚗 Veículo: <strong style="color:var(--text-1)">${veiculo}</strong></div>
+      <div>📅 Data: <strong style="color:var(--text-1)">${new Date(selectedDate).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}</strong></div>
+      <div>⏰ Horário: <strong style="color:var(--orange)">${selectedSlot}</strong></div>
+      ${obs ? `<div>💬 Obs: <strong style="color:var(--text-1)">${obs}</strong></div>` : ''}
+    </div>`,
+    'Confirmar ✅'
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MINHA AGENDA
+═══════════════════════════════════════════════════════════ */
+function filterAgenda(status, btn) {
+  agendaFilter = status;
+  document.querySelectorAll('#pg-agenda .filter-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  renderAgenda();
+}
+
+function renderAgenda() {
+  const list = g('agenda-list');
+  let appts = [...allMyAppts].sort((a,b) => new Date(b.horario) - new Date(a.horario));
+  if (agendaFilter !== 'todos') appts = appts.filter(a => a.status === agendaFilter);
+  if (!appts.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Nenhum agendamento</div><div class="empty-sub">Seus agendamentos aparecerão aqui</div></div>`;
+    return;
+  }
+  list.innerHTML = appts.map(a => apptCardCliente(a)).join('');
+}
+
+function apptCardCliente(a) {
+  const canCancel = a.status === 'pendente';
+  return `<div class="appt-card ${a.status}">
+    <div class="appt-header">
+      <div class="appt-hora">${fmtTime(a.horario)}</div>
+      <span class="appt-status-badge ${a.status}">${a.status}</span>
+    </div>
+    <div class="appt-info">
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+        <span>${fmtDate(a.horario)}</span>
+      </div>
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+        <span>Veículo: <strong>${a.veiculo}</strong></span>
+      </div>
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+        <span>Serviço: <strong>${a.tipo_servico}</strong></span>
+      </div>
+      ${a.observacoes ? `<div class="appt-row"><svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4-9.5 9.5-1.5 5.5 5.5-1.5L21 6.5zm-15 9l-1-1 9-9 1 1-9 9zm-1.5 2.5l.7-2.5 1.8 1.8-2.5.7z"/></svg><span>${a.observacoes}</span></div>` : ''}
+    </div>
+    ${canCancel ? `<div class="appt-actions"><button class="btn-sm btn-cancel" onclick="cancelarAppt('${a.id}')">✕ Cancelar</button></div>` : ''}
+  </div>`;
+}
+
+async function cancelarAppt(id) {
+  showModal('Cancelar Agendamento', 'Tem certeza? Esta ação não pode ser desfeita.', async () => {
+    const { error } = await db.from('appointments').update({ status: 'cancelado' }).eq('id', id).eq('user_id', CU.id);
+    if (error) { toast('Erro ao cancelar', 'err'); return false; }
+    toast('Agendamento cancelado', '');
+    await loadMyAppts();
+    renderAgenda();
+    renderHome();
+  }, '', 'Sim, cancelar');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAINEL (funcionário / admin)
+═══════════════════════════════════════════════════════════ */
+function filterPainel(tipo, btn) {
+  painelFilter = tipo;
+  document.querySelectorAll('#pg-painel .filter-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  renderPainel();
+}
+
+function renderPainel() {
+  const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+  g('painel-sub').textContent = `Agendamentos de hoje — ${today}`;
+
+  let appts = [...allPainelAppts];
+  if (painelFilter !== 'todos') appts = appts.filter(a => a.tipo_servico === painelFilter);
+
+  const total = allPainelAppts.length;
+  const pend = allPainelAppts.filter(a => a.status === 'pendente').length;
+  const done = allPainelAppts.filter(a => a.status === 'concluido').length;
+  g('p-stat-total').textContent = total;
+  g('p-stat-pend').textContent = pend;
+  g('p-stat-done').textContent = done;
+
+  if (!appts.length) {
+    g('painel-list').innerHTML = `<div class="empty"><div class="empty-ico">🏁</div><div class="empty-title">Nenhum agendamento</div><div class="empty-sub">A agenda de hoje está vazia</div></div>`;
+    return;
+  }
+
+  // Agrupar por horário
+  const grupos = {};
+  appts.forEach(a => {
+    const k = fmtTime(a.horario);
+    if (!grupos[k]) grupos[k] = [];
+    grupos[k].push(a);
+  });
+
+  let html = '';
+  Object.keys(grupos).sort().forEach(hora => {
+    const group = grupos[hora];
+    const count = group.length;
+    const countClass = count >= MAX_POR_SLOT ? 'full' : count === 1 ? 'partial' : 'empty';
+    const countLabel = count >= MAX_POR_SLOT ? 'Lotado' : `${count}/${MAX_POR_SLOT}`;
+    html += `<div class="day-section">
+      <div class="day-header">
+        <div class="day-hora">${hora}</div>
+        <div class="day-count"><span>${count}</span>/${MAX_POR_SLOT} veículos</div>
+        <span class="count-pill ${countClass}">${countLabel}</span>
+      </div>
+      ${group.map(a => apptCardStaff(a)).join('')}
+    </div>`;
+  });
+  g('painel-list').innerHTML = html;
+}
+
+function apptCardStaff(a) {
+  const isPend = a.status === 'pendente';
+  const nome = a.profiles?.nome || 'Desconhecido';
+  const contato = a.profiles?.contato || '-';
+  return `<div class="appt-card ${a.status}">
+    <div class="appt-header">
+      <div style="font-family:var(--font-cond);font-size:16px;font-weight:800;color:var(--text-1)">${nome}</div>
+      <span class="appt-status-badge ${a.status}">${a.status}</span>
+    </div>
+    <div class="appt-info">
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        <span>Contato: <strong>${contato}</strong></span>
+      </div>
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+        <span>Veículo: <strong>${a.veiculo}</strong></span>
+      </div>
+      <div class="appt-row">
+        <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+        <span>Serviço: <strong>${a.tipo_servico}</strong></span>
+      </div>
+      ${a.observacoes ? `<div class="appt-row"><svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4-9.5 9.5-1.5 5.5 5.5-1.5L21 6.5z"/></svg><span>${a.observacoes}</span></div>` : ''}
+    </div>
+    ${isPend ? `<div class="appt-actions">
+      <button class="btn-sm btn-ok" onclick="updateAppt('${a.id}','concluido')">✓ Concluir</button>
+      <button class="btn-sm btn-cancel" onclick="updateAppt('${a.id}','cancelado')">✕ Cancelar</button>
+    </div>` : ''}
+  </div>`;
+}
+
+async function updateAppt(id, status) {
+  const label = status === 'concluido' ? 'Concluir' : 'Cancelar';
+  showModal(`${label} Atendimento`, `Confirmar esta ação?`, async () => {
+    const { error } = await db.from('appointments').update({ status }).eq('id', id);
+    if (error) { toast('Erro ao atualizar', 'err'); return false; }
+    toast(`Agendamento ${status}!`, 'ok');
+    await loadPainelAppts();
+    renderPainel();
+  }, '', `Sim, ${label.toLowerCase()}`);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════════════════════ */
+let adminUsersData = [], adminAgendaData = [];
+
+async function loadAdminData() {
+  const { data: users } = await db.from('profiles').select('*, appointments(count)').order('created_at', { ascending: false });
+  adminUsersData = users || [];
+  const { data: appts } = await db.from('appointments')
+    .select('*, profiles(nome,contato)')
+    .order('horario', { ascending: false })
+    .limit(50);
+  adminAgendaData = appts || [];
+}
+
+function showAdminTab(tab, btn) {
+  document.querySelectorAll('#pg-admin .filter-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  g('admin-usuarios').style.display = tab === 'usuarios' ? 'block' : 'none';
+  g('admin-agenda-geral').style.display = tab === 'agenda-geral' ? 'block' : 'none';
+  if (tab === 'usuarios') renderAdminUsers();
+  else renderAdminAgenda();
+}
+
+function renderAdmin() {
+  loadAdminData().then(() => renderAdminUsers());
+}
+
+function renderAdminUsers() {
+  const list = g('admin-users-list');
+  if (!adminUsersData.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-title">Nenhum usuário</div></div>`;
+    return;
+  }
+  list.innerHTML = adminUsersData.map(u => `
+    <div class="appt-card pendente" style="margin-bottom:.6rem">
+      <div class="appt-header">
+        <div style="font-family:var(--font-cond);font-size:16px;font-weight:800">${u.nome}</div>
+        <span class="role-badge role-${u.role}">${u.role}</span>
+      </div>
+      <div class="appt-info">
+        <div class="appt-row"><span>Contato: <strong>${u.contato||'-'}</strong></span></div>
+        <div class="appt-row"><span>Membro desde: <strong>${new Date(u.created_at).toLocaleDateString('pt-BR')}</strong></span></div>
+      </div>
+      ${profile.role === 'admin' ? `<div class="appt-actions">
+        <select onchange="changeRole('${u.id}',this.value)" style="flex:1;background:var(--bg-in);border:1px solid var(--border-m);border-radius:var(--r-sm);padding:.45rem .6rem;color:var(--text-1);font-family:var(--font);font-size:13px;outline:none">
+          <option value="cliente" ${u.role==='cliente'?'selected':''}>Cliente</option>
+          <option value="funcionario" ${u.role==='funcionario'?'selected':''}>Funcionário</option>
+          <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+        </select>
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function renderAdminAgenda() {
+  const list = g('admin-agenda-list');
+  if (!adminAgendaData.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-title">Nenhum agendamento</div></div>`;
+    return;
+  }
+  list.innerHTML = adminAgendaData.map(a => `
+    <div class="appt-card ${a.status}" style="margin-bottom:.6rem">
+      <div class="appt-header">
+        <div class="appt-hora">${fmtTime(a.horario)}</div>
+        <span class="appt-status-badge ${a.status}">${a.status}</span>
+      </div>
+      <div class="appt-info">
+        <div class="appt-row"><span>Cliente: <strong>${a.profiles?.nome||'-'}</strong></span></div>
+        <div class="appt-row"><span>Veículo: <strong>${a.veiculo}</strong></span></div>
+        <div class="appt-row"><span>Serviço: <strong>${a.tipo_servico}</strong></span></div>
+        <div class="appt-row"><span>Data: <strong>${fmtDate(a.horario)}</strong></span></div>
+      </div>
+    </div>`).join('');
+}
+
+async function changeRole(userId, newRole) {
+  const { error } = await db.from('profiles').update({ role: newRole }).eq('id', userId);
+  if (error) toast('Erro ao atualizar role', 'err');
+  else { toast(`Role atualizado para ${newRole}`, 'ok'); await loadAdminData(); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ÍCONES SVG
+═══════════════════════════════════════════════════════════ */
+function icoHome() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`; }
+function icoCalPlus() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>`; }
+function icoCal() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>`; }
+function icoUser() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`; }
+function icoDash() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`; }
+function icoSettings() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`; }
+
+/* ═══════════════════════════════════════════════════════════
+   SERVICE WORKER
+═══════════════════════════════════════════════════════════ */
+function swSetup() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.update().catch(() => {});
+    if (reg.waiting) { newSW = reg.waiting; g('upd-banner').classList.add('show'); }
+    reg.addEventListener('updatefound', () => {
+      const nw = reg.installing;
+      nw.addEventListener('statechange', () => {
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+          newSW = nw; g('upd-banner').classList.add('show');
+        }
+      });
+    });
+  }).catch(e => console.warn('[SW]', e));
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) { refreshing = true; window.location.reload(); }
+  });
+}
+function applyUpdate() {
+  if (newSW) newSW.postMessage('SKIP_WAITING');
+  else window.location.reload(true);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN INIT
+═══════════════════════════════════════════════════════════ */
+(async () => {
+  swSetup();
+  const ld = g('ld');
+  const auth = g('auth');
+  const app = g('app');
+
+  // Listener de mudança de estado de auth
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      auth.style.display = 'none';
+      app.style.display = 'flex';
+      await boot(session.user);
+      ld.classList.add('fade-out');
+    } else if (event === 'SIGNED_OUT') {
+      CU = null; profile = null;
+      app.style.display = 'none';
+      auth.style.display = 'flex';
+      ld.classList.add('fade-out');
+      // Reset form
+      g('form-login').classList.add('on');
+      g('form-register').classList.remove('on');
+    } else {
+      // Sem sessão
+      setTimeout(() => {
+        ld.classList.add('fade-out');
+        auth.style.display = 'flex';
+      }, 1200);
+    }
+  });
+
+  // Checa sessão existente
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    setTimeout(() => {
+      ld.classList.add('fade-out');
+      auth.style.display = 'flex';
+    }, 1200);
+  }
+})();
+</script>
+</body>
+</html>
