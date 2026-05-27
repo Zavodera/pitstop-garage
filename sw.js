@@ -1,90 +1,41 @@
-// ─── SERVICE WORKER — PitStop Garage ──────────────────────
-// ⚠️  REGRA: sempre que mudar o index.html, atualize VERSION
-//     para o mesmo valor de APP_VERSION definido no index.
-//     Ex: index APP_VERSION = 'v2.0.4' → VERSION = 'v2.0.4'
-// ──────────────────────────────────────────────────────────
+// PitStop Garage — Service Worker v2.0.4
 const VERSION = 'v2.0.4';
-const CACHE   = `pitstop-${VERSION}`;
+const CACHE = 'pitstop-' + VERSION;
 
-// Só cacheia fontes e libs externas — NUNCA o index.html
-const ASSETS = [
-  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-];
+// Instala e ativa imediatamente
+self.addEventListener('install', () => self.skipWaiting());
 
-// ── INSTALL: ativa imediatamente ────────────────────────────
-self.addEventListener('install', event => {
-  console.log(`[SW] Instalando ${CACHE}`);
-  self.skipWaiting(); // não espera fechar abas
-  event.waitUntil(
-    caches.open(CACHE).then(cache =>
-      cache.addAll(ASSETS).catch(err => console.warn('[SW] Cache parcial:', err))
-    )
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
 });
 
-// ── ACTIVATE: apaga todos os caches antigos ─────────────────
-self.addEventListener('activate', event => {
-  console.log(`[SW] Ativando ${CACHE}`);
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => {
-          console.log(`[SW] Removendo cache antigo: ${k}`);
-          return caches.delete(k);
-        })
-      ))
-      .then(() => self.clients.claim()) // toma controle imediato
-  );
-});
+self.addEventListener('fetch', e => {
+  const url = e.request.url;
 
-// ── FETCH ───────────────────────────────────────────────────
-self.addEventListener('fetch', event => {
-  const url = event.request.url;
-
-  // Nunca intercepta chamadas externas
-  if (url.includes('supabase.co'))    return;
-  if (url.includes('googleapis.com')) return;
-  if (url.includes('jsdelivr.net'))   return;
-  if (url.includes('gstatic.com'))    return;
-
-  // HTML → SEMPRE busca da rede, nunca cacheia
-  const isHTML =
-    event.request.destination === 'document' ||
-    url.endsWith('.html') ||
-    url.endsWith('/');
-
-  if (isHTML) {
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .catch(() => caches.match('./index.html')) // fallback offline
-    );
+  // NUNCA cacheia o index.html — sempre busca da rede
+  if (url.includes('index.html') || url.endsWith('/') || e.request.destination === 'document') {
+    e.respondWith(fetch(e.request, {cache: 'no-store'}));
     return;
   }
 
-  // Fontes e libs → cache-first (economiza banda)
-  if (url.includes('fonts.') || url.includes('jsdelivr') || url.includes('cdn.')) {
-    event.respondWith(
-      caches.match(event.request).then(cached => {
-        if (cached) return cached;
-        return fetch(event.request).then(res => {
-          if (res && res.status === 200) {
-            caches.open(CACHE).then(c => c.put(event.request, res.clone()));
-          }
-          return res;
-        }).catch(() => null);
-      })
-    );
-    return;
-  }
+  // Nunca intercepta chamadas ao Supabase
+  if (url.includes('supabase.co') || url.includes('googleapis') || url.includes('jsdelivr')) return;
 
-  // Resto → network-first
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+  // Fontes e libs: cache-first
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+      if (res && res.status === 200) {
+        caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+      }
+      return res;
+    }))
   );
 });
 
-// ── MESSAGE: força atualização manual ───────────────────────
-self.addEventListener('message', event => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });

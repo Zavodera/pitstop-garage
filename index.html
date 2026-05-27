@@ -931,13 +931,27 @@ async function changeRole(uid,role){
 // SW
 function swSetup(){
   if(!('serviceWorker'in navigator))return;
-  if('caches'in window)caches.keys().then(k=>k.forEach(c=>{if(!c.includes('v2.0.4'))caches.delete(c);}));
-  navigator.serviceWorker.register('./sw.js?v=2.0.0').then(r=>{
+  // Limpa todos os caches antigos imediatamente
+  if('caches'in window){
+    caches.keys().then(keys=>keys.forEach(k=>{if(!k.includes('v2.0.4'))caches.delete(k);}));
+  }
+  navigator.serviceWorker.register('./sw.js?v=2.0.4',{updateViaCache:'none'}).then(r=>{
+    // Força checagem de atualização
     r.update();
-    r.addEventListener('updatefound',()=>{const n=r.installing;n.addEventListener('statechange',()=>{if(n.state==='installed'&&navigator.serviceWorker.controller)n.postMessage('SKIP_WAITING');});});
+    // Se já tem um SW esperando, ativa imediatamente
+    if(r.waiting) r.waiting.postMessage('SKIP_WAITING');
+    r.addEventListener('updatefound',()=>{
+      const sw=r.installing;
+      sw.addEventListener('statechange',()=>{
+        if(sw.state==='installed') sw.postMessage('SKIP_WAITING');
+      });
+    });
   }).catch(()=>{});
-  let ref=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!ref){ref=true;location.reload();}});
+  // Recarrega quando o SW novo assumir o controle
+  let reloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!reloading){reloading=true;location.reload();}
+  });
 }
 
 // Main
