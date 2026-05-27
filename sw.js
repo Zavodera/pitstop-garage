@@ -1,9 +1,9 @@
 // ─── SERVICE WORKER — PitStop Garage ──────────────────────
 // ⚠️  REGRA: sempre que mudar o index.html, atualize VERSION
 //     para o mesmo valor de APP_VERSION definido no index.
-//     Ex: index APP_VERSION = 'v1.0.5' → VERSION = 'v1.0.5'
+//     Ex: index APP_VERSION = 'v1.0.6' → VERSION = 'v1.0.6'
 // ──────────────────────────────────────────────────────────
-const VERSION = 'v1.0.5';
+const VERSION = 'v1.0.6';
 const CACHE   = `pitstop-${VERSION}`;
 
 // Só cacheia fontes e libs externas — NUNCA o index.html
