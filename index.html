@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#F97316">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1591,30 +1593,58 @@ function icoDash() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path 
 function icoSettings() { return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`; }
 
 /* ═══════════════════════════════════════════════════════════
-   SERVICE WORKER
+   SERVICE WORKER — registro agressivo com limpeza de cache
 ═══════════════════════════════════════════════════════════ */
 function swSetup() {
   if (!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('./sw.js').then(reg => {
-    reg.update().catch(() => {});
-    if (reg.waiting) { newSW = reg.waiting; g('upd-banner').classList.add('show'); }
+
+  // Limpa caches antigos do browser imediatamente
+  if ('caches' in window) {
+    caches.keys().then(keys => {
+      keys.forEach(k => {
+        if (!k.startsWith('pitstop-v1.0.1')) {
+          caches.delete(k);
+          console.log('[App] Cache removido:', k);
+        }
+      });
+    });
+  }
+
+  navigator.serviceWorker.register('./sw.js?v=1.0.1').then(reg => {
+    // Força verificação de update imediata
+    reg.update();
+
+    if (reg.waiting) {
+      newSW = reg.waiting;
+      reg.waiting.postMessage('SKIP_WAITING');
+    }
+
     reg.addEventListener('updatefound', () => {
       const nw = reg.installing;
       nw.addEventListener('statechange', () => {
-        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-          newSW = nw; g('upd-banner').classList.add('show');
+        if (nw.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // Nova versão disponível — aplica automaticamente
+            nw.postMessage('SKIP_WAITING');
+          }
         }
       });
     });
   }).catch(e => console.warn('[SW]', e));
+
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) { refreshing = true; window.location.reload(); }
   });
 }
+
 function applyUpdate() {
-  if (newSW) newSW.postMessage('SKIP_WAITING');
-  else window.location.reload(true);
+  if ('caches' in window) {
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => window.location.reload(true));
+  } else {
+    window.location.reload(true);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
