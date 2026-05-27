@@ -3,7 +3,7 @@
 //     para o mesmo valor de APP_VERSION definido no index.
 //     Ex: index APP_VERSION = 'v1.0.1' → VERSION = 'v1.0.1'
 // ──────────────────────────────────────────────────────────
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const CACHE   = `pitstop-${VERSION}`;
 
 // Só cacheia fontes e libs externas — NUNCA o index.html
